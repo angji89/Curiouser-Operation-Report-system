@@ -1,0 +1,2464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1F3A5F">
+<title>Curiouser Ops</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ---------------------------------------------------------------
+   Design tokens — warm editorial with operational clarity
+   --------------------------------------------------------------- */
+:root {
+  --navy:    #1F3A5F;
+  --navy-d:  #15283F;
+  --teal:    #2E8B8B;
+  --coral:   #E8705F;
+  --gold:    #E8B04F;
+  --cream:   #F5F1EA;
+  --cream-d: #EBE4D5;
+  --ink:     #1A1A1A;
+  --ink-2:   #4A4A4A;
+  --mute:    #8A8278;
+  --line:    #D8D1C0;
+  --white:   #FEFCF7;
+  --ok:      #4A9D5C;
+  --amber:   #E8B04F;
+  --red:     #C0392B;
+  --red-bg:  #FBEAE7;
+  --amber-bg:#FDF5E2;
+  --info-bg: #E2F0F3;
+  --ok-bg:   #E6F2E9;
+  --radius:  14px;
+  --radius-s:8px;
+  --shadow:  0 1px 2px rgba(21,40,63,.04), 0 4px 16px rgba(21,40,63,.06);
+  --shadow-lg: 0 4px 12px rgba(21,40,63,.08), 0 24px 48px rgba(21,40,63,.12);
+  --serif:   'Fraunces', 'Georgia', serif;
+  --sans:    'Instrument Sans', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  font-family: var(--sans);
+  font-size: 16px;
+  color: var(--ink);
+  background: var(--cream);
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, select, textarea { font-family: inherit; font-size: 16px; }
+
+/* ---------------------------------------------------------------
+   App shell
+   --------------------------------------------------------------- */
+.app {
+  max-width: 520px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding-bottom: 80px;
+  background: var(--cream);
+  position: relative;
+}
+
+.topbar {
+  padding: 16px 20px 14px;
+  background: var(--navy);
+  color: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 0 var(--navy-d);
+}
+
+.topbar .brand {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar .brand::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background: var(--coral);
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.topbar .role {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 5px 11px;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 100px;
+  color: var(--cream);
+  background: rgba(255,255,255,.05);
+  font-weight: 500;
+}
+
+.topbar .role:hover { background: rgba(255,255,255,.12); }
+
+/* ---------------------------------------------------------------
+   Bottom tab bar
+   --------------------------------------------------------------- */
+.tabs {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 520px;
+  background: var(--white);
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  z-index: 20;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tab {
+  padding: 12px 6px 10px;
+  text-align: center;
+  color: var(--mute);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: color 0.15s;
+  border-top: 2px solid transparent;
+  position: relative;
+}
+
+.tab svg { display: block; margin: 0 auto 3px; width: 22px; height: 22px; }
+.tab.active { color: var(--navy); border-top-color: var(--coral); }
+.tab:not(.active):hover { color: var(--ink-2); }
+
+/* ---------------------------------------------------------------
+   Views
+   --------------------------------------------------------------- */
+.view { padding: 20px 18px 28px; display: none; animation: fadeIn 0.25s ease; }
+.view.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------------------------------------------------------------
+   HOME view
+   --------------------------------------------------------------- */
+.hero {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 22px 20px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--cream-d);
+}
+
+.hero .eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--mute);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.hero h1 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 1.15;
+  color: var(--navy);
+  letter-spacing: -0.015em;
+  margin-bottom: 6px;
+}
+
+.hero h1 em {
+  font-style: italic;
+  font-weight: 500;
+  color: var(--coral);
+}
+
+.hero p {
+  color: var(--ink-2);
+  font-size: 14px;
+}
+
+.section-label {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--mute);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin: 22px 2px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+/* Role grid */
+.role-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.role-card {
+  background: var(--white);
+  border: 1px solid var(--cream-d);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: left;
+  transition: all 0.18s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.role-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--teal); }
+.role-card:active { transform: translateY(0); }
+
+.role-card .icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  color: var(--white);
+}
+.role-card[data-role="dm"]      .icon { background: var(--navy); }
+.role-card[data-role="tiger"]   .icon { background: var(--coral); }
+.role-card[data-role="tegan"]   .icon { background: var(--teal); }
+.role-card[data-role="lead"]    .icon { background: var(--gold); color: var(--navy); }
+.role-card[data-role="full"]    .icon { background: var(--navy-d); }
+.role-card[data-role="weekly"]  .icon { background: var(--ink); }
+
+.role-card .icon svg { width: 20px; height: 20px; }
+
+.role-card .name {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--navy);
+  margin-bottom: 2px;
+}
+.role-card .desc { font-size: 12px; color: var(--mute); line-height: 1.35; }
+
+/* Quick stats on home */
+.quick-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.q-stat {
+  background: var(--white);
+  border: 1px solid var(--cream-d);
+  border-radius: var(--radius-s);
+  padding: 12px 10px;
+  text-align: center;
+}
+
+.q-stat .v {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--navy);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+.q-stat .l {
+  font-size: 10px;
+  color: var(--mute);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------
+   Form view (reporting)
+   --------------------------------------------------------------- */
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.form-header .back {
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--white);
+  border: 1px solid var(--cream-d);
+  border-radius: 10px;
+  color: var(--navy);
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.form-header .back:hover { background: var(--cream-d); }
+.form-header h2 {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--navy);
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+.form-header .subtitle { font-size: 13px; color: var(--mute); margin-top: 1px; }
+
+.week-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--navy);
+  color: var(--white);
+  padding: 6px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.week-chip::before {
+  content: "";
+  width: 6px; height: 6px;
+  background: var(--coral);
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Field groups */
+.field-group {
+  background: var(--white);
+  border: 1px solid var(--cream-d);
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.field-group-title {
+  padding: 14px 16px 6px;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--navy);
+  letter-spacing: -0.005em;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.field-group-title .hint {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--mute);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.field {
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid var(--cream-d);
+}
+.field:first-of-type { border-top: 1px solid var(--cream-d); }
+
+.field label {
+  font-size: 14px;
+  color: var(--ink);
+  flex: 1;
+  line-height: 1.3;
+}
+.field label .sub {
+  display: block;
+  font-size: 11px;
+  color: var(--mute);
+  margin-top: 1px;
+}
+
+.field input[type="number"],
+.field input[type="text"],
+.field input[type="date"],
+.field select {
+  width: 110px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--cream);
+  text-align: right;
+  color: var(--navy);
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.15s;
+  font-variant-numeric: tabular-nums;
+}
+.field input[type="text"] { text-align: left; font-weight: 500; }
+.field input[type="date"] { text-align: left; width: auto; }
+
+.field input:focus, .field select:focus {
+  outline: none;
+  border-color: var(--teal);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(46,139,139,.15);
+}
+
+.field input::placeholder { color: var(--mute); font-weight: 400; }
+
+.field-wide {
+  flex-direction: column;
+  align-items: stretch;
+  padding: 12px 16px;
+}
+.field-wide label { margin-bottom: 6px; }
+.field-wide input[type="text"],
+.field-wide textarea {
+  width: 100%;
+  text-align: left;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  resize: vertical;
+  min-height: 40px;
+  font-family: inherit;
+}
+.field-wide textarea:focus {
+  outline: none;
+  border-color: var(--teal);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(46,139,139,.15);
+}
+
+/* Class rows table */
+.class-row-card {
+  background: var(--white);
+  border: 1px solid var(--cream-d);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 10px;
+  position: relative;
+}
+.class-row-card .class-title {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--navy);
+  margin-bottom: 2px;
+}
+.class-row-card .class-meta {
+  font-size: 12px;
+  color: var(--mute);
+  margin-bottom: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.class-row-card .class-meta select {
+  font-size: 12px;
+  padding: 3px 6px 3px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--cream);
+  color: var(--ink-2);
+  font-weight: 500;
+}
+.class-row-card .micro-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.class-row-card .micro {
+  background: var(--cream);
+  border-radius: 6px;
+  padding: 6px 0;
+  text-align: center;
+}
+.class-row-card .micro label {
+  font-size: 9px;
+  color: var(--mute);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 1px;
+}
+.class-row-card .micro input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: center;
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 16px;
+  padding: 0;
+}
+.class-row-card .micro input:focus {
+  outline: none; background: var(--white);
+  box-shadow: inset 0 0 0 1px var(--teal);
+  border-radius: 4px;
+}
+.class-row-card .extra-fields {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.class-row-card .extra-fields select,
+.class-row-card .extra-fields input {
+  font-size: 12px;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--cream);
+  color: var(--ink);
+  width: 100%;
+}
+
+/* Submit bar */
+.submit-bar {
+  background: var(--white);
+  border: 1px solid var(--cream-d);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-top: 16px;
+  text-align: center;
+}
+.submit-bar .summary {
+  font-size: 13px;
+  color: var(--ink-2);
+  margin-bottom: 12px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.15s;
+  font-family: var(--sans);
+}
+.btn-primary {
+  background: var(--navy);
+  color: var(--white);
+  width: 100%;
+  box-shadow: 0 2px 0 var(--navy-d);
+}
+.btn-primary:hover { background: var(--navy-d); }
+.btn-primary:active { transform: translateY(1px); box-shadow: 0 0 0 var(--navy-d); }
+
+.btn-secondary {
+  background: var(--white);
+  color: var(--navy);
+  border: 1px solid var(--cream-d);
+}
+.btn-secondary:hover { background: var(--cream-d); }
+
+.btn-ghost { color: var(--teal); padding: 8px 12px; font-size: 13px; }
+.btn-ghost:hover { background: var(--cream-d); border-radius: 6px; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--navy);
+  color: var(--white);
+  padding: 12px 20px;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+.toast.error { background: var(--red); }
+
+/* ---------------------------------------------------------------
+   DASHBOARD view
+   --------------------------------------------------------------- */
+.dash-header {
+  margin-bottom: 18px;
+}
+.dash-header h2 {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+  line-height: 1.1;
+}
+.dash-header .date {
+  font-size: 13px;
+  color: var(--mute);
+  margin-top: 3px;
+  font-style: italic;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.kpi {
+  background: var(--white);
+  border: 1px solid var(--cream-d);
+  border-radius: var(--radius);
+  padding: 14px 14px 12px;
+  position: relative;
+  overflow: hidden;
+}
+.kpi::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: var(--teal);
+}
+.kpi[data-trend="up"]::before   { background: var(--ok); }
+.kpi[data-trend="down"]::before { background: var(--red); }
+.kpi[data-trend="flat"]::before { background: var(--mute); }
+
+.kpi .label {
+  font-size: 11px;
+  color: var(--mute);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+.kpi .value {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.kpi .delta {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.kpi .delta.up   { color: var(--ok); }
+.kpi .delta.down { color: var(--red); }
+.kpi .delta.flat { color: var(--mute); }
+
+.card {
+  background: var(--white);
+  border: 1px solid var(--cream-d);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.card h3 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--navy);
+  margin-bottom: 12px;
+  letter-spacing: -0.005em;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.card h3 .note {
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 11px;
+  color: var(--mute);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.chart-wrap {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  margin-bottom: 8px;
+}
+
+.chart-wrap svg { width: 100%; height: 100%; display: block; }
+
+.legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--ink-2);
+  padding-top: 8px;
+  border-top: 1px solid var(--cream-d);
+  margin-top: 8px;
+}
+.legend .item { display: flex; align-items: center; gap: 6px; }
+.legend .swatch {
+  width: 12px; height: 12px;
+  border-radius: 3px;
+}
+
+/* Flag list */
+.flag {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--cream-d);
+  align-items: flex-start;
+}
+.flag:first-child { border-top: none; padding-top: 4px; }
+.flag .sev {
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+}
+.flag .sev.red   { background: var(--red-bg);   color: var(--red);   }
+.flag .sev.amber { background: var(--amber-bg); color: #B77D10;      }
+.flag .sev.info  { background: var(--info-bg);  color: var(--teal);  }
+.flag .sev.ok    { background: var(--ok-bg);    color: var(--ok);    }
+
+.flag .body { flex: 1; }
+.flag .subj { font-weight: 600; font-size: 14px; color: var(--navy); line-height: 1.3; }
+.flag .det  { font-size: 13px; color: var(--ink-2); line-height: 1.35; margin-top: 2px; }
+.flag .wk   { font-size: 11px; color: var(--mute); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+
+/* Ranked classes bars */
+.class-rank { padding: 6px 0; border-top: 1px solid var(--cream-d); }
+.class-rank:first-child { border-top: none; padding-top: 0; }
+.class-rank .row-1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+.class-rank .cls-name { color: var(--ink); font-weight: 500; }
+.class-rank .cls-pct {
+  color: var(--navy);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.class-rank .bar {
+  width: 100%;
+  height: 5px;
+  background: var(--cream-d);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.class-rank .fill {
+  height: 100%;
+  background: var(--teal);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+.class-rank .fill.low  { background: var(--red); }
+.class-rank .fill.med  { background: var(--gold); }
+.class-rank .meta {
+  display: flex;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--mute);
+  margin-top: 4px;
+}
+
+/* Week picker */
+.week-picker {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+.week-picker::-webkit-scrollbar { display: none; }
+.week-btn {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  background: var(--white);
+  border: 1px solid var(--cream-d);
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.week-btn.active {
+  background: var(--navy);
+  color: var(--white);
+  border-color: var(--navy);
+}
+
+/* Exports */
+.export-row {
+  display: flex;
+  gap: 8px;
+}
+.export-row .btn { flex: 1; }
+
+/* Empty state */
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--mute);
+}
+.empty svg { width: 40px; height: 40px; margin: 0 auto 12px; opacity: 0.4; }
+.empty p { font-size: 14px; line-height: 1.5; }
+
+/* Role switcher modal */
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(21,40,63,.6);
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.2s;
+}
+.modal-bg.open { display: flex; }
+.modal {
+  background: var(--cream);
+  width: 100%;
+  max-width: 520px;
+  border-radius: 18px 18px 0 0;
+  padding: 22px 20px 28px;
+  animation: slideUp 0.25s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(20px); }
+  to   { transform: translateY(0); }
+}
+.modal h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 14px;
+}
+.modal .option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--white);
+  border: 1px solid var(--cream-d);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: all 0.15s;
+}
+.modal .option:hover { border-color: var(--teal); }
+.modal .option .dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--line);
+  flex-shrink: 0;
+}
+.modal .option.sel .dot { background: var(--coral); box-shadow: 0 0 0 3px rgba(232,112,95,.2); }
+.modal .option .text { flex: 1; }
+.modal .option .name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--navy);
+}
+.modal .option .desc {
+  font-size: 12px;
+  color: var(--mute);
+  margin-top: 1px;
+}
+
+/* Archive list */
+.archive-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background: var(--white);
+  border: 1px solid var(--cream-d);
+  border-radius: var(--radius-s);
+  margin-bottom: 8px;
+}
+.archive-item .a-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--navy);
+}
+.archive-item .a-meta {
+  font-size: 12px;
+  color: var(--mute);
+  margin-top: 2px;
+}
+.archive-item .a-action {
+  font-size: 13px;
+  color: var(--teal);
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+.archive-item .a-action:hover { background: var(--cream-d); }
+
+.danger { color: var(--red); }
+
+.footnote {
+  text-align: center;
+  font-size: 12px;
+  color: var(--mute);
+  padding: 12px;
+  font-style: italic;
+}
+.footnote em {
+  font-family: var(--serif);
+  color: var(--navy);
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* Responsive: slightly larger on desktop */
+@media (min-width: 600px) {
+  .app { box-shadow: var(--shadow); }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="brand">Curiouser Ops</div>
+    <button class="role" id="roleBtn">Pick Role</button>
+  </header>
+
+  <!-- HOME VIEW -->
+  <main class="view active" id="view-home">
+    <div class="hero">
+      <div class="eyebrow">Weekly Operations</div>
+      <h1>Ready for your <em>Sunday</em> report?</h1>
+      <p id="homeSubtitle">Pick the section you're responsible for, or run through the full weekly close.</p>
+    </div>
+
+    <div class="section-label">This week at a glance</div>
+    <div class="quick-stats" id="quickStats">
+      <div class="q-stat"><div class="v" id="qsVenue">—</div><div class="l">Venue</div></div>
+      <div class="q-stat"><div class="v" id="qsAtt">—</div><div class="l">Class att</div></div>
+      <div class="q-stat"><div class="v" id="qsBook">—</div><div class="l">Bookings</div></div>
+    </div>
+
+    <div class="section-label">Report your section</div>
+    <div class="role-grid">
+      <button class="role-card" data-role="dm" data-section="revenue-footfall">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M3 3v18h18"/><path d="M7 14l3-3 4 4 5-6"/>
+          </svg>
+        </div>
+        <div class="name">Duty Manager</div>
+        <div class="desc">Safety, revenue, footfall</div>
+      </button>
+
+      <button class="role-card" data-role="lead" data-section="classes">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M12 2l9 4v6c0 5-4 9-9 10-5-1-9-5-9-10V6l9-4z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+        </div>
+        <div class="name">Class Lead</div>
+        <div class="desc">Class attendance detail</div>
+      </button>
+
+      <button class="role-card" data-role="tegan" data-section="parties-camps">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M5.8 11.3L2 22l10.7-3.79"/>
+            <path d="M4 3h.01"/><path d="M22 8h.01"/><path d="M15 2h.01"/><path d="M22 20h.01"/>
+            <path d="M22 2l-2.25.75L18 2l-.75 1.75L16 4l1.25.75L18 6l.75-1.25L20 4z"/>
+            <path d="M12 5l1 2-1 2-2-1 1-2z"/>
+          </svg>
+        </div>
+        <div class="name">Tegan</div>
+        <div class="desc">Parties, events, camps</div>
+      </button>
+
+      <button class="role-card" data-role="tiger" data-section="marketing">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M3 11l18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 11-5.8-1.6"/>
+          </svg>
+        </div>
+        <div class="name">Tiger</div>
+        <div class="desc">Instagram + Rednotes</div>
+      </button>
+    </div>
+
+    <div class="section-label">Or do the lot</div>
+    <div class="role-grid" style="grid-template-columns: 1fr;">
+      <button class="role-card" data-role="full" data-section="full" style="display:flex;flex-direction:row;align-items:center;gap:14px;">
+        <div class="icon" style="margin:0;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M4 4h16v16H4z"/><path d="M4 10h16"/><path d="M10 4v16"/>
+          </svg>
+        </div>
+        <div>
+          <div class="name">Full weekly close</div>
+          <div class="desc">Every section, top to bottom</div>
+        </div>
+      </button>
+    </div>
+
+    <div class="section-label">Recent submissions</div>
+    <div id="recentList"></div>
+  </main>
+
+  <!-- REPORT VIEW -->
+  <main class="view" id="view-report">
+    <div class="form-header">
+      <button class="back" onclick="goHome()" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+          <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+        </svg>
+      </button>
+      <div>
+        <h2 id="formTitle">Report</h2>
+        <div class="subtitle" id="formSubtitle">Fill in what's changed since last week</div>
+      </div>
+    </div>
+
+    <div class="week-chip">Week Commencing <span id="weekChipDate"></span></div>
+
+    <div id="formBody"></div>
+
+    <div class="submit-bar">
+      <div class="summary" id="formSummary">Values will be saved to this week's report when you submit.</div>
+      <button class="btn btn-primary" onclick="submitForm()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Submit to this week
+      </button>
+    </div>
+  </main>
+
+  <!-- DASHBOARD VIEW -->
+  <main class="view" id="view-dashboard">
+    <div class="dash-header">
+      <h2>Dashboard</h2>
+      <div class="date" id="dashDate">Four weeks of February 2026</div>
+    </div>
+
+    <div class="week-picker" id="weekPicker"></div>
+
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="card">
+      <h3>Attendance trend <span class="note">last 4 weeks</span></h3>
+      <div class="chart-wrap" id="chartAttendance"></div>
+      <div class="legend">
+        <div class="item"><span class="swatch" style="background:var(--navy)"></span>Venue</div>
+        <div class="item"><span class="swatch" style="background:var(--teal)"></span>Class</div>
+        <div class="item"><span class="swatch" style="background:var(--coral)"></span>Trial</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Booking mix <span class="note" id="mixLabel">latest week</span></h3>
+      <div id="chartMix"></div>
+      <div class="legend" id="mixLegend"></div>
+    </div>
+
+    <div class="card">
+      <h3>Classes ranked <span class="note">by attendance rate — Feb</span></h3>
+      <div id="classRank"></div>
+    </div>
+
+    <div class="card">
+      <h3>Anomaly flags <span class="note" id="flagWeekLabel">latest week</span></h3>
+      <div id="flagList"></div>
+    </div>
+
+    <div class="card">
+      <h3>Marketing <span class="note">IG vs Rednotes — Feb total</span></h3>
+      <div class="chart-wrap" id="chartMk" style="height:160px"></div>
+      <div class="legend">
+        <div class="item"><span class="swatch" style="background:var(--navy)"></span>Views</div>
+        <div class="item"><span class="swatch" style="background:var(--coral)"></span>New followers</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Export & manage data</h3>
+      <div class="export-row">
+        <button class="btn btn-secondary" onclick="exportCSV()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Export CSV
+        </button>
+        <button class="btn btn-secondary" onclick="exportJSON()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+          </svg>
+          Export JSON
+        </button>
+      </div>
+      <div style="text-align:center; margin-top:10px;">
+        <button class="btn-ghost" onclick="resetDemo()">Reset to Feb '26 demo data</button>
+      </div>
+    </div>
+
+    <div class="footnote">
+      This is a <em>working prototype</em>. Data lives in your browser only.
+      When you're happy, have a developer wire the same forms to a real database.
+    </div>
+  </main>
+
+  <!-- ARCHIVE VIEW -->
+  <main class="view" id="view-archive">
+    <div class="dash-header">
+      <h2>Archive</h2>
+      <div class="date">All submitted weeks</div>
+    </div>
+    <div id="archiveList"></div>
+  </main>
+
+</div>
+
+<!-- TAB BAR -->
+<nav class="tabs">
+  <button class="tab active" data-view="home" onclick="showView('home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+    Report
+  </button>
+  <button class="tab" data-view="dashboard" onclick="showView('dashboard')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/>
+    </svg>
+    Dashboard
+  </button>
+  <button class="tab" data-view="archive" onclick="showView('archive')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/>
+    </svg>
+    Archive
+  </button>
+</nav>
+
+<!-- Role modal -->
+<div class="modal-bg" id="roleModal">
+  <div class="modal">
+    <h3>Who's reporting this week?</h3>
+    <button class="option" data-role-id="dm">
+      <div class="dot"></div>
+      <div class="text">
+        <div class="name">Duty Manager</div>
+        <div class="desc">Safety, revenue, footfall</div>
+      </div>
+    </button>
+    <button class="option" data-role-id="lead">
+      <div class="dot"></div>
+      <div class="text">
+        <div class="name">Class Lead</div>
+        <div class="desc">Per-class attendance detail</div>
+      </div>
+    </button>
+    <button class="option" data-role-id="tegan">
+      <div class="dot"></div>
+      <div class="text">
+        <div class="name">Tegan</div>
+        <div class="desc">Parties, events, camps</div>
+      </div>
+    </button>
+    <button class="option" data-role-id="tiger">
+      <div class="dot"></div>
+      <div class="text">
+        <div class="name">Tiger</div>
+        <div class="desc">Marketing</div>
+      </div>
+    </button>
+    <button class="option" data-role-id="ops">
+      <div class="dot"></div>
+      <div class="text">
+        <div class="name">Ops Manager</div>
+        <div class="desc">Reviews everything. Dashboard-first.</div>
+      </div>
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===============================================================
+   CURIOUSER OPS — Web App Prototype
+   ===============================================================
+   - All state persists in localStorage
+   - Pre-seeded with Feb 2026 data from the operation report
+   - Role-based form routing, mobile-first
+   - Dashboard with SVG charts (no libraries)
+   - CSV / JSON export for handoff to hosted system
+   =============================================================== */
+
+// ---------------------------------------------------------------
+// CONSTANTS
+// ---------------------------------------------------------------
+const CLASSES = ["MM","MM WGC","MM KEN","MM St Mary","Baby Music","Music",
+  "Drama 2-4","Drama 4-6","Cooking 2-4","Cooking 4-6","Discoveries",
+  "Science 3-4","Science 5-6","Monty Maths","Private Class","Toddler Art","French"];
+
+const INSTRUCTORS = ["Erry","Margot","Tegan","Joe","Erin"];
+
+const THRESHOLDS = {
+  attendanceDrop: 0.20,
+  cpConvFloor:    0.05,
+  trialNoShow:    0.30,
+  cancelStreak:   2,
+  revenueDrop:    0.15,
+  igCpaCeiling:   1.00
+};
+
+// Seed data — exactly what's in the Excel file
+const SEED = [
+  {
+    weekCommencing: "2026-02-02", weekLabel: "WC 02.02", reportedBy: "Tiger",
+    safety: { accidents:0, nearMisses:0, complaints:0, accidentDetail:"", nearMissDetail:"", complaintDetail:"" },
+    revenue: { silver:6, gold:2, platinum:2, trial:5, oneoff:9, camp:2, courseFour:0, party:1, partyExtras:0, events:0, other:0, refunds:0 },
+    footfall: { venue:113, trial:11, classAtt:98, lounge:3, weekendParty:0, tours:1, walkInClasses:1, walkInTrials:0, walkInParties:0 },
+    classesSummary: { open:23, cancelled:8, bookings:113, trials:11, returners:87, cpConv:7 },
+    classes: [
+      { cls:"MM",            inst:"Erry",   open:5,cancel:0,book:21,att:19,trials:0, returners:19,cp:2,promo:"",         notes:"Two trials 15:30 Wed did not attend" },
+      { cls:"MM WGC",        inst:"Margot", open:1,cancel:0,book:25,att:19,trials:2, returners:17,cp:1,promo:"",         notes:"" },
+      { cls:"MM KEN",        inst:"Tegan",  open:1,cancel:0,book:5, att:6, trials:0, returners:6, cp:0,promo:"",         notes:"" },
+      { cls:"MM St Mary",    inst:"Tegan",  open:1,cancel:0,book:6, att:7, trials:2, returners:5, cp:1,promo:"",         notes:"" },
+      { cls:"Baby Music",    inst:"Tegan",  open:1,cancel:0,book:2, att:2, trials:0, returners:2, cp:0,promo:"",         notes:"" },
+      { cls:"Music",         inst:"Tegan",  open:1,cancel:0,book:6, att:6, trials:0, returners:6, cp:0,promo:"",         notes:"" },
+      { cls:"Drama 2-4",     inst:"Tegan",  open:2,cancel:0,book:11,att:10,trials:0, returners:10,cp:0,promo:"",         notes:"" },
+      { cls:"Drama 4-6",     inst:"Tegan",  open:1,cancel:0,book:4, att:4, trials:0, returners:4, cp:0,promo:"",         notes:"" },
+      { cls:"Cooking 2-4",   inst:"Margot", open:2,cancel:1,book:6, att:6, trials:2, returners:4, cp:1,promo:"",         notes:"Tuesday closed early" },
+      { cls:"Cooking 4-6",   inst:"Tegan",  open:1,cancel:0,book:2, att:2, trials:0, returners:2, cp:0,promo:"",         notes:"" },
+      { cls:"Discoveries",   inst:"Margot", open:1,cancel:0,book:1, att:1, trials:0, returners:1, cp:0,promo:"Free Trial",notes:"" },
+      { cls:"Science 3-4",   inst:"Tegan",  open:1,cancel:0,book:5, att:5, trials:2, returners:3, cp:0,promo:"Free Trial",notes:"" },
+      { cls:"Science 5-6",   inst:"Tegan",  open:1,cancel:0,book:0, att:0, trials:0, returners:0, cp:0,promo:"Free Trial",notes:"" },
+      { cls:"Monty Maths",   inst:"Margot", open:1,cancel:0,book:8, att:4, trials:0, returners:4, cp:0,promo:"Free Trial",notes:"3 trials 1 cancel 2 no-show" },
+      { cls:"Private Class", inst:"Erry",   open:1,cancel:0,book:1, att:1, trials:0, returners:1, cp:0,promo:"",         notes:"" },
+      { cls:"Toddler Art",   inst:"Erry",   open:1,cancel:0,book:9, att:5, trials:3, returners:2, cp:1,promo:"Free Trial",notes:"3 trials did not attend" },
+      { cls:"French",        inst:"Margot", open:1,cancel:0,book:1, att:1, trials:0, returners:1, cp:1,promo:"Free Trial",notes:"" }
+    ],
+    partiesEvents: { partiesHeld:1, partyAtt:11, partyEnq:3, eventsHeld:0, eventBookings:0, eventPart:0 },
+    camps: [
+      { name:"FEB HT '26", centre:"Hampstead", enquiries:0, manualBook:8, backendBook:6, newCust:0, returners:0, totalBook:14, capacity:95, attended:38 },
+      { name:"FEB HT '26", centre:"Kensington",enquiries:1, manualBook:0, backendBook:0, newCust:0, returners:0, totalBook:1,  capacity:75, attended:0 }
+    ],
+    marketing: {
+      instagram: { posts:3, stories:13, views:601, likes:9, messages:1, newFol:7, invest:0, best:"Discoveries update / Valentines", worst:"MM Trays", notes:"" },
+      rednotes:  { posts:4, stories:0, views:3650, likes:161, messages:3, newFol:60, invest:8.75, best:"Baby video / MM trays", worst:"Discoveries", notes:"75 Yuan invested" }
+    }
+  },
+  {
+    weekCommencing: "2026-02-09", weekLabel: "WC 09.02", reportedBy: "Tiger",
+    safety: { accidents:0, nearMisses:0, complaints:0, accidentDetail:"", nearMissDetail:"", complaintDetail:"" },
+    revenue: { silver:7, gold:2, platinum:1, trial:11, oneoff:20, camp:5, courseFour:0, party:0, partyExtras:0, events:0, other:0, refunds:0 },
+    footfall: { venue:124, trial:14, classAtt:109, lounge:1, weekendParty:0, tours:0, walkInClasses:0, walkInTrials:0, walkInParties:0 },
+    classesSummary: { open:23, cancelled:13, bookings:114, trials:14, returners:96, cpConv:6 },
+    classes: [
+      { cls:"MM",            inst:"Erry",   open:5,cancel:1,book:27,att:27,trials:4,returners:24,cp:1,promo:"",notes:"No bookings Wed 15:30" },
+      { cls:"MM WGC",        inst:"Margot", open:1,cancel:0,book:26,att:23,trials:1,returners:22,cp:1,promo:"",notes:"" },
+      { cls:"MM KEN",        inst:"Margot", open:1,cancel:0,book:6, att:6, trials:1,returners:5, cp:1,promo:"",notes:"" },
+      { cls:"MM St Mary",    inst:"Margot", open:1,cancel:0,book:6, att:6, trials:0,returners:6, cp:1,promo:"",notes:"" },
+      { cls:"Baby Music",    inst:"Joe",    open:1,cancel:0,book:4, att:4, trials:0,returners:4, cp:1,promo:"",notes:"" },
+      { cls:"Music",         inst:"Joe",    open:1,cancel:0,book:5, att:5, trials:1,returners:4, cp:0,promo:"",notes:"" },
+      { cls:"Drama 2-4",     inst:"Joe",    open:2,cancel:0,book:8, att:8, trials:0,returners:8, cp:0,promo:"",notes:"" },
+      { cls:"Drama 4-6",     inst:"Joe",    open:1,cancel:0,book:3, att:4, trials:1,returners:3, cp:1,promo:"",notes:"" },
+      { cls:"Cooking 2-4",   inst:"Margot", open:2,cancel:0,book:6, att:6, trials:2,returners:4, cp:0,promo:"",notes:"" },
+      { cls:"Cooking 4-6",   inst:"Erry",   open:1,cancel:0,book:2, att:2, trials:0,returners:2, cp:0,promo:"",notes:"" },
+      { cls:"Discoveries",   inst:"Margot", open:1,cancel:0,book:3, att:3, trials:3,returners:0, cp:0,promo:"",notes:"" },
+      { cls:"Science 3-4",   inst:"Joe",    open:1,cancel:0,book:5, att:5, trials:0,returners:5, cp:0,promo:"",notes:"" },
+      { cls:"Science 5-6",   inst:"Joe",    open:1,cancel:1,book:0, att:0, trials:0,returners:0, cp:0,promo:"",notes:"" },
+      { cls:"Monty Maths",   inst:"Margot", open:1,cancel:0,book:8, att:5, trials:0,returners:5, cp:0,promo:"Free Trial",notes:"" },
+      { cls:"Private Class", inst:"Erry",   open:1,cancel:0,book:0, att:0, trials:0,returners:0, cp:0,promo:"",notes:"" },
+      { cls:"Toddler Art",   inst:"Erry",   open:1,cancel:0,book:5, att:5, trials:1,returners:4, cp:0,promo:"Free Trial",notes:"" },
+      { cls:"French",        inst:"Margot", open:1,cancel:1,book:0, att:0, trials:0,returners:0, cp:0,promo:"Free Trial",notes:"" }
+    ],
+    partiesEvents: { partiesHeld:0, partyAtt:0, partyEnq:4, eventsHeld:0, eventBookings:0, eventPart:0 },
+    camps: [],
+    marketing: {
+      instagram: { posts:0, stories:0, views:0, likes:0, messages:0, newFol:0, invest:0, best:"", worst:"", notes:"" },
+      rednotes:  { posts:0, stories:0, views:0, likes:0, messages:0, newFol:0, invest:0, best:"", worst:"", notes:"" }
+    }
+  },
+  {
+    weekCommencing: "2026-02-16", weekLabel: "WC 16.02", reportedBy: "Tiger",
+    safety: { accidents:0, nearMisses:0, complaints:0, accidentDetail:"", nearMissDetail:"", complaintDetail:"" },
+    revenue: { silver:2, gold:5, platinum:0, trial:4, oneoff:19, camp:16, courseFour:0, party:0, partyExtras:0, events:0, other:0, refunds:0 },
+    footfall: { venue:110, trial:20, classAtt:88, lounge:1, weekendParty:0, tours:0, walkInClasses:0, walkInTrials:0, walkInParties:1 },
+    classesSummary: { open:16, cancelled:11, bookings:94, trials:20, returners:65, cpConv:3 },
+    classes: [
+      { cls:"MM",            inst:"Erry",   open:5,cancel:0,book:31,att:27,trials:5,returners:21,cp:1,promo:"",notes:"5 trials 2 did not attend" },
+      { cls:"MM WGC",        inst:"Margot", open:1,cancel:0,book:19,att:18,trials:1,returners:17,cp:2,promo:"",notes:"" },
+      { cls:"MM KEN",        inst:"Tegan",  open:0,cancel:0,book:0, att:0, trials:0,returners:0, cp:0,promo:"",notes:"Half term" },
+      { cls:"MM St Mary",    inst:"Tegan",  open:0,cancel:0,book:0, att:0, trials:0,returners:0, cp:0,promo:"",notes:"Half term" },
+      { cls:"Baby Music",    inst:"Joe",    open:1,cancel:0,book:4, att:4, trials:0,returners:4, cp:0,promo:"",notes:"" },
+      { cls:"Music",         inst:"Joe",    open:1,cancel:0,book:8, att:8, trials:2,returners:6, cp:0,promo:"",notes:"" },
+      { cls:"Drama 2-4",     inst:"Joe",    open:2,cancel:0,book:10,att:9, trials:2,returners:7, cp:0,promo:"",notes:"" },
+      { cls:"Drama 4-6",     inst:"Joe",    open:0,cancel:0,book:0, att:0, trials:0,returners:0, cp:0,promo:"",notes:"Half term" },
+      { cls:"Cooking 2-4",   inst:"Margot", open:2,cancel:0,book:8, att:8, trials:1,returners:7, cp:0,promo:"",notes:"" },
+      { cls:"Cooking 4-6",   inst:"Tegan",  open:0,cancel:0,book:0, att:0, trials:0,returners:0, cp:0,promo:"",notes:"Half term" },
+      { cls:"Discoveries",   inst:"Margot", open:0,cancel:0,book:0, att:0, trials:0,returners:0, cp:0,promo:"",notes:"Half term" },
+      { cls:"Science 3-4",   inst:"Joe",    open:1,cancel:0,book:1, att:2, trials:0,returners:0, cp:0,promo:"",notes:"" },
+      { cls:"Science 5-6",   inst:"Joe",    open:0,cancel:0,book:0, att:0, trials:0,returners:0, cp:0,promo:"",notes:"Half term" },
+      { cls:"Monty Maths",   inst:"Margot", open:1,cancel:0,book:3, att:3, trials:0,returners:3, cp:0,promo:"Free Trial",notes:"" },
+      { cls:"Private Class", inst:"Erry",   open:0,cancel:0,book:0, att:0, trials:0,returners:0, cp:0,promo:"",notes:"" },
+      { cls:"Toddler Art",   inst:"Erry",   open:1,cancel:0,book:8, att:7, trials:7,returners:0, cp:0,promo:"Free Trial",notes:"Half-term trial spike" },
+      { cls:"French",        inst:"Margot", open:1,cancel:0,book:2, att:2, trials:2,returners:0, cp:0,promo:"Free Trial",notes:"" }
+    ],
+    partiesEvents: { partiesHeld:1, partyAtt:19, partyEnq:4, eventsHeld:0, eventBookings:0, eventPart:0 },
+    camps: [
+      { name:"FEB HT '26", centre:"Hampstead", enquiries:0, manualBook:0, backendBook:0, newCust:0, returners:0, totalBook:0, capacity:95, attended:70 },
+      { name:"FEB HT '26", centre:"Kensington",enquiries:0, manualBook:0, backendBook:0, newCust:0, returners:0, totalBook:0, capacity:75, attended:9  }
+    ],
+    marketing: {
+      instagram: { posts:0, stories:6, views:240, likes:4, messages:3, newFol:4, invest:0, best:"New lounge set up", worst:"", notes:"" },
+      rednotes:  { posts:0, stories:0, views:310, likes:17,messages:2, newFol:9, invest:0, best:"New year poster / Pancake day", worst:"", notes:"" }
+    }
+  },
+  {
+    weekCommencing: "2026-02-23", weekLabel: "WC 23.02", reportedBy: "Tiger",
+    safety: { accidents:0, nearMisses:0, complaints:0, accidentDetail:"", nearMissDetail:"", complaintDetail:"" },
+    revenue: { silver:5, gold:4, platinum:1, trial:9, oneoff:12, camp:9, courseFour:1, party:0, partyExtras:0, events:0, other:0, refunds:0 },
+    footfall: { venue:123, trial:18, classAtt:105, lounge:0, weekendParty:0, tours:0, walkInClasses:0, walkInTrials:0, walkInParties:0 },
+    classesSummary: { open:22, cancelled:13, bookings:114, trials:18, returners:86, cpConv:6 },
+    classes: [
+      { cls:"MM",            inst:"Erry",   open:5,cancel:1,book:25,att:25,trials:2,returners:23,cp:1,promo:"",notes:"Wed 15:30 closed no bookings" },
+      { cls:"MM WGC",        inst:"Margot", open:1,cancel:0,book:26,att:21,trials:0,returners:21,cp:0,promo:"",notes:"" },
+      { cls:"MM KEN",        inst:"Joe",    open:1,cancel:0,book:3, att:4, trials:0,returners:4, cp:1,promo:"",notes:"" },
+      { cls:"MM St Mary",    inst:"Joe",    open:1,cancel:0,book:8, att:7, trials:1,returners:6, cp:0,promo:"",notes:"" },
+      { cls:"Baby Music",    inst:"Joe",    open:1,cancel:0,book:3, att:3, trials:1,returners:2, cp:1,promo:"",notes:"" },
+      { cls:"Music",         inst:"Joe",    open:1,cancel:0,book:2, att:2, trials:0,returners:2, cp:0,promo:"",notes:"" },
+      { cls:"Drama 2-4",     inst:"Joe",    open:2,cancel:0,book:7, att:7, trials:0,returners:7, cp:0,promo:"",notes:"" },
+      { cls:"Drama 4-6",     inst:"Joe",    open:1,cancel:0,book:4, att:4, trials:0,returners:4, cp:1,promo:"",notes:"" },
+      { cls:"Cooking 2-4",   inst:"Margot", open:2,cancel:0,book:7, att:6, trials:1,returners:5, cp:1,promo:"",notes:"" },
+      { cls:"Cooking 4-6",   inst:"Erin",   open:1,cancel:0,book:2, att:2, trials:0,returners:2, cp:0,promo:"",notes:"New Erin" },
+      { cls:"Discoveries",   inst:"Margot", open:1,cancel:0,book:6, att:6, trials:5,returners:1, cp:0,promo:"",notes:"" },
+      { cls:"Science 3-4",   inst:"Joe",    open:1,cancel:0,book:6, att:5, trials:1,returners:4, cp:0,promo:"",notes:"" },
+      { cls:"Science 5-6",   inst:"Joe",    open:1,cancel:1,book:0, att:0, trials:0,returners:0, cp:0,promo:"",notes:"" },
+      { cls:"Monty Maths",   inst:"Margot", open:1,cancel:0,book:7, att:4, trials:2,returners:2, cp:1,promo:"Free Trial",notes:"" },
+      { cls:"Private Class", inst:"Erry",   open:0,cancel:0,book:1, att:2, trials:0,returners:1, cp:0,promo:"",notes:"Riri playdate" },
+      { cls:"Toddler Art",   inst:"Erry",   open:1,cancel:0,book:7, att:7, trials:5,returners:2, cp:0,promo:"Free Trial",notes:"1 cancelled morning of" },
+      { cls:"French",        inst:"Margot", open:1,cancel:1,book:0, att:0, trials:0,returners:0, cp:0,promo:"Free Trial",notes:"Trial rescheduled" }
+    ],
+    partiesEvents: { partiesHeld:1, partyAtt:22, partyEnq:2, eventsHeld:0, eventBookings:0, eventPart:0 },
+    camps: [],
+    marketing: {
+      instagram: { posts:1, stories:14, views:560, likes:2, messages:2, newFol:2, invest:0, best:"CNY envelope", worst:"", notes:"" },
+      rednotes:  { posts:5, stories:0, views:918, likes:54, messages:15, newFol:30, invest:0, best:"Penang event / Happy CNY", worst:"Lion dance", notes:"" }
+    }
+  }
+];
+
+// ---------------------------------------------------------------
+// STATE MANAGEMENT
+// ---------------------------------------------------------------
+const STORE_KEY = 'curiouser_ops_data_v1';
+const ROLE_KEY  = 'curiouser_ops_role_v1';
+
+function load() {
+  const raw = localStorage.getItem(STORE_KEY);
+  if (raw) {
+    try { return JSON.parse(raw); } catch(e) { /* fall through */ }
+  }
+  // First run — seed with Feb data
+  const data = { weeks: JSON.parse(JSON.stringify(SEED)), currentDraft: null };
+  save(data);
+  return data;
+}
+function save(data) { localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
+
+let state = load();
+let currentRole = localStorage.getItem(ROLE_KEY) || null;
+let currentSection = null;
+let currentWeekIndex = state.weeks.length - 1;  // point at latest week for dashboard
+
+// ---------------------------------------------------------------
+// NAVIGATION
+// ---------------------------------------------------------------
+function showView(v) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.getElementById('view-' + v).classList.add('active');
+  document.querySelectorAll('.tab').forEach(el => el.classList.toggle('active', el.dataset.view === v));
+  window.scrollTo(0, 0);
+  if (v === 'dashboard') renderDashboard();
+  if (v === 'archive')   renderArchive();
+  if (v === 'home')      renderHome();
+}
+function goHome() { showView('home'); }
+
+// ---------------------------------------------------------------
+// ROLE SWITCHING
+// ---------------------------------------------------------------
+const roleLabels = {
+  dm: "Duty Manager", lead: "Class Lead", tegan: "Tegan",
+  tiger: "Tiger", ops: "Ops Manager"
+};
+
+function updateRoleUI() {
+  document.getElementById('roleBtn').textContent = currentRole ? roleLabels[currentRole] : 'Pick Role';
+  document.querySelectorAll('.modal .option').forEach(o => {
+    o.classList.toggle('sel', o.dataset.roleId === currentRole);
+  });
+  const sub = document.getElementById('homeSubtitle');
+  if (currentRole === 'ops') {
+    sub.textContent = "Review dashboards, investigate flags, and manage the weekly close.";
+  } else if (currentRole) {
+    sub.textContent = `You're set to ${roleLabels[currentRole]}. Your section is highlighted below.`;
+  } else {
+    sub.textContent = "Pick the section you're responsible for, or run through the full weekly close.";
+  }
+}
+
+document.getElementById('roleBtn').addEventListener('click', () => {
+  document.getElementById('roleModal').classList.add('open');
+});
+document.getElementById('roleModal').addEventListener('click', (e) => {
+  if (e.target.id === 'roleModal') e.currentTarget.classList.remove('open');
+  const btn = e.target.closest('.option');
+  if (btn) {
+    currentRole = btn.dataset.roleId;
+    localStorage.setItem(ROLE_KEY, currentRole);
+    updateRoleUI();
+    document.getElementById('roleModal').classList.remove('open');
+    if (currentRole === 'ops') showView('dashboard');
+  }
+});
+
+// ---------------------------------------------------------------
+// HOME VIEW
+// ---------------------------------------------------------------
+function renderHome() {
+  const latest = state.weeks[state.weeks.length - 1];
+  if (latest) {
+    document.getElementById('qsVenue').textContent = fmt(latest.footfall.venue);
+    document.getElementById('qsAtt').textContent   = fmt(latest.footfall.classAtt);
+    const total = totalBookings(latest);
+    document.getElementById('qsBook').textContent  = fmt(total);
+  }
+
+  const rl = document.getElementById('recentList');
+  rl.innerHTML = '';
+  const recent = [...state.weeks].slice(-3).reverse();
+  if (recent.length === 0) {
+    rl.innerHTML = '<div class="empty"><p>No submissions yet.</p></div>';
+    return;
+  }
+  recent.forEach(w => {
+    const el = document.createElement('div');
+    el.className = 'archive-item';
+    el.innerHTML = `
+      <div>
+        <div class="a-title">${w.weekLabel}</div>
+        <div class="a-meta">${w.footfall.venue} venue · ${w.classesSummary.bookings} bookings · ${w.classesSummary.cancelled} cancelled</div>
+      </div>
+      <button class="a-action" onclick="viewWeek(${state.weeks.indexOf(w)})">View</button>
+    `;
+    rl.appendChild(el);
+  });
+}
+
+function viewWeek(idx) {
+  currentWeekIndex = idx;
+  showView('dashboard');
+}
+
+// Role cards open the right form
+document.querySelectorAll('.role-card').forEach(c => {
+  c.addEventListener('click', () => openForm(c.dataset.section, c.dataset.role));
+});
+
+// ---------------------------------------------------------------
+// FORM VIEW
+// ---------------------------------------------------------------
+function openForm(section, role) {
+  currentSection = section;
+  // Ensure a draft exists
+  if (!state.currentDraft) {
+    state.currentDraft = newDraft();
+    save(state);
+  }
+
+  const titles = {
+    'revenue-footfall': { title: 'Duty Manager', sub: 'Safety, revenue, footfall' },
+    'classes': { title: 'Class Lead', sub: 'Per-class attendance detail' },
+    'parties-camps': { title: 'Parties / Events / Camps', sub: 'Parties, events, camps this week' },
+    'marketing': { title: 'Marketing', sub: 'Instagram + Rednotes performance' },
+    'full': { title: 'Full Weekly Close', sub: 'Walk through every section' }
+  };
+  const t = titles[section] || { title: 'Report', sub: '' };
+  document.getElementById('formTitle').textContent = t.title;
+  document.getElementById('formSubtitle').textContent = t.sub;
+  document.getElementById('weekChipDate').textContent = formatDate(state.currentDraft.weekCommencing);
+
+  renderForm();
+  showView('report');
+}
+
+function newDraft() {
+  // Next Monday by default
+  const last = state.weeks[state.weeks.length - 1];
+  let next = new Date(last ? last.weekCommencing : '2026-03-02');
+  next.setDate(next.getDate() + 7);
+  const d = next.toISOString().slice(0,10);
+  const mm = String(next.getMonth()+1).padStart(2,'0');
+  const dd = String(next.getDate()).padStart(2,'0');
+  return {
+    weekCommencing: d,
+    weekLabel: `WC ${dd}.${mm}`,
+    reportedBy: currentRole ? roleLabels[currentRole] : '',
+    safety: { accidents:0, nearMisses:0, complaints:0, accidentDetail:"", nearMissDetail:"", complaintDetail:"" },
+    revenue: { silver:0, gold:0, platinum:0, trial:0, oneoff:0, camp:0, courseFour:0, party:0, partyExtras:0, events:0, other:0, refunds:0 },
+    footfall: { venue:0, trial:0, classAtt:0, lounge:0, weekendParty:0, tours:0, walkInClasses:0, walkInTrials:0, walkInParties:0 },
+    classesSummary: { open:0, cancelled:0, bookings:0, trials:0, returners:0, cpConv:0 },
+    classes: CLASSES.map(c => ({ cls:c, inst:"", open:0,cancel:0,book:0,att:0,trials:0,returners:0,cp:0,promo:"",notes:"" })),
+    partiesEvents: { partiesHeld:0, partyAtt:0, partyEnq:0, eventsHeld:0, eventBookings:0, eventPart:0 },
+    camps: [],
+    marketing: {
+      instagram: { posts:0, stories:0, views:0, likes:0, messages:0, newFol:0, invest:0, best:"", worst:"", notes:"" },
+      rednotes:  { posts:0, stories:0, views:0, likes:0, messages:0, newFol:0, invest:0, best:"", worst:"", notes:"" }
+    }
+  };
+}
+
+function renderForm() {
+  const body = document.getElementById('formBody');
+  const d = state.currentDraft;
+  body.innerHTML = '';
+
+  // Week header (always shown)
+  body.appendChild(section('Week details', '', [
+    field('Week commencing (Monday)', 'date', 'weekCommencing', d.weekCommencing, true),
+    field('Reported by',              'text', 'reportedBy', d.reportedBy, true)
+  ]));
+
+  const sec = currentSection;
+
+  if (sec === 'revenue-footfall' || sec === 'full') {
+    body.appendChild(section('Safety', 'count this week', [
+      field('Accidents / incidents',  'number', 'safety.accidents', d.safety.accidents),
+      field('Near misses',             'number', 'safety.nearMisses', d.safety.nearMisses),
+      field('Complaints / comments',   'number', 'safety.complaints', d.safety.complaints),
+      wideField('Detail (if any)',     'safety.accidentDetail', d.safety.accidentDetail, 'If any incident occurred, briefly describe')
+    ]));
+
+    body.appendChild(section('Revenue — bookings count', 'Stripe + Till + Bank', [
+      field('Silver CP',          'number', 'revenue.silver',     d.revenue.silver),
+      field('Gold CP',            'number', 'revenue.gold',       d.revenue.gold),
+      field('Platinum CP',        'number', 'revenue.platinum',   d.revenue.platinum),
+      field('Trial bookings',     'number', 'revenue.trial',      d.revenue.trial),
+      field('One-off bookings',   'number', 'revenue.oneoff',     d.revenue.oneoff),
+      field('Camp bookings',      'number', 'revenue.camp',       d.revenue.camp),
+      field('4+ course bookings', 'number', 'revenue.courseFour', d.revenue.courseFour),
+      field('Party bookings',     'number', 'revenue.party',      d.revenue.party),
+      field('Party extras',       'number', 'revenue.partyExtras',d.revenue.partyExtras),
+      field('Events',             'number', 'revenue.events',     d.revenue.events),
+      field('Other',              'number', 'revenue.other',      d.revenue.other),
+      field('Refunds',            'number', 'revenue.refunds',    d.revenue.refunds),
+    ]));
+
+    body.appendChild(section('Club footfall', 'physical attendance', [
+      field('Total venue attendance',       'number', 'footfall.venue',        d.footfall.venue),
+      field('Total trial attendance',       'number', 'footfall.trial',        d.footfall.trial),
+      field('Total class attendance',       'number', 'footfall.classAtt',     d.footfall.classAtt),
+      field('Lounge access attendance',     'number', 'footfall.lounge',       d.footfall.lounge),
+      field('Weekend party attendance',     'number', 'footfall.weekendParty', d.footfall.weekendParty),
+      field('Venue tours',                  'number', 'footfall.tours',        d.footfall.tours),
+      field('Walk-in enquiries (classes)',  'number', 'footfall.walkInClasses',d.footfall.walkInClasses),
+      field('Walk-in enquiries (trials)',   'number', 'footfall.walkInTrials', d.footfall.walkInTrials),
+      field('Walk-in enquiries (parties)',  'number', 'footfall.walkInParties',d.footfall.walkInParties)
+    ]));
+  }
+
+  if (sec === 'classes' || sec === 'full') {
+    const notice = document.createElement('div');
+    notice.className = 'field-group';
+    notice.innerHTML = `
+      <div class="field-group-title">Per-class detail <span class="hint">${CLASSES.length} classes</span></div>
+      <div style="padding: 0 16px 12px; font-size: 13px; color: var(--ink-2); line-height: 1.4;">
+        Tap into each card below. Leave at 0 if the class didn't run this week.
+      </div>
+    `;
+    body.appendChild(notice);
+
+    d.classes.forEach((c, i) => body.appendChild(classCard(c, i)));
+
+    body.appendChild(section('Class totals (auto-summed)', 'these roll up to dashboard', [
+      field('Classes open',         'number', 'classesSummary.open',      d.classesSummary.open,      false, '__autoClassesOpen'),
+      field('Classes cancelled',    'number', 'classesSummary.cancelled', d.classesSummary.cancelled, false, '__autoClassesCancelled'),
+      field('Total bookings',       'number', 'classesSummary.bookings',  d.classesSummary.bookings,  false, '__autoBookings'),
+      field('Total trials',         'number', 'classesSummary.trials',    d.classesSummary.trials,    false, '__autoTrials'),
+      field('Total returners',      'number', 'classesSummary.returners', d.classesSummary.returners, false, '__autoReturners'),
+      field('Total CP conversions', 'number', 'classesSummary.cpConv',    d.classesSummary.cpConv,    false, '__autoCp')
+    ]));
+  }
+
+  if (sec === 'parties-camps' || sec === 'full') {
+    body.appendChild(section('Parties & events', 'this week', [
+      field('Parties held',         'number', 'partiesEvents.partiesHeld',   d.partiesEvents.partiesHeld),
+      field('Party attendance',     'number', 'partiesEvents.partyAtt',      d.partiesEvents.partyAtt),
+      field('Party enquiries',      'number', 'partiesEvents.partyEnq',      d.partiesEvents.partyEnq),
+      field('Events held',          'number', 'partiesEvents.eventsHeld',    d.partiesEvents.eventsHeld),
+      field('Event bookings',       'number', 'partiesEvents.eventBookings', d.partiesEvents.eventBookings),
+      field('Event participation',  'number', 'partiesEvents.eventPart',     d.partiesEvents.eventPart)
+    ]));
+
+    const campGroup = document.createElement('div');
+    campGroup.className = 'field-group';
+    campGroup.innerHTML = `
+      <div class="field-group-title">Camps <span class="hint">per centre</span></div>
+      <div id="campList" style="padding: 0 12px 12px;"></div>
+      <div style="padding: 0 16px 16px;">
+        <button class="btn btn-secondary" style="width:100%;" onclick="addCamp()">+ Add camp row</button>
+      </div>
+    `;
+    body.appendChild(campGroup);
+    renderCampList();
+  }
+
+  if (sec === 'marketing' || sec === 'full') {
+    body.appendChild(section('Instagram', 'weekly summary', [
+      field('Posts',          'number', 'marketing.instagram.posts',    d.marketing.instagram.posts),
+      field('Stories',        'number', 'marketing.instagram.stories',  d.marketing.instagram.stories),
+      field('Views',          'number', 'marketing.instagram.views',    d.marketing.instagram.views),
+      field('Likes',          'number', 'marketing.instagram.likes',    d.marketing.instagram.likes),
+      field('Messages',       'number', 'marketing.instagram.messages', d.marketing.instagram.messages),
+      field('New followers',  'number', 'marketing.instagram.newFol',   d.marketing.instagram.newFol),
+      field('Investment £',   'number', 'marketing.instagram.invest',   d.marketing.instagram.invest,   false, null, 0.01),
+      wideField('Best post',        'marketing.instagram.best',  d.marketing.instagram.best,  'e.g. Discoveries class update'),
+      wideField('Worst / underperformed', 'marketing.instagram.worst', d.marketing.instagram.worst, 'e.g. MM Trays'),
+      wideField('Notes',            'marketing.instagram.notes', d.marketing.instagram.notes, '')
+    ]));
+
+    body.appendChild(section('Rednotes', 'weekly summary', [
+      field('Posts',          'number', 'marketing.rednotes.posts',    d.marketing.rednotes.posts),
+      field('Views',          'number', 'marketing.rednotes.views',    d.marketing.rednotes.views),
+      field('Likes',          'number', 'marketing.rednotes.likes',    d.marketing.rednotes.likes),
+      field('Messages',       'number', 'marketing.rednotes.messages', d.marketing.rednotes.messages),
+      field('New followers',  'number', 'marketing.rednotes.newFol',   d.marketing.rednotes.newFol),
+      field('Investment £',   'number', 'marketing.rednotes.invest',   d.marketing.rednotes.invest,   false, null, 0.01),
+      wideField('Best post',        'marketing.rednotes.best',  d.marketing.rednotes.best,  ''),
+      wideField('Worst / underperformed', 'marketing.rednotes.worst', d.marketing.rednotes.worst, ''),
+      wideField('Notes',            'marketing.rednotes.notes', d.marketing.rednotes.notes, '')
+    ]));
+  }
+
+  // Summary
+  updateSummary();
+
+  // Wire inputs
+  body.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('input', onFieldChange);
+  });
+}
+
+function section(title, hint, fields) {
+  const el = document.createElement('div');
+  el.className = 'field-group';
+  el.innerHTML = `<div class="field-group-title">${title}${hint?`<span class="hint">${hint}</span>`:''}</div>`;
+  fields.forEach(f => el.appendChild(f));
+  return el;
+}
+
+function field(label, type, path, value, isWide, autoId, step) {
+  const el = document.createElement('div');
+  el.className = 'field';
+  const isAuto = !!autoId;
+  const id = `fld_${path.replace(/\./g,'_')}`;
+  const extra = type === 'number' ? `inputmode="numeric" pattern="[0-9]*" ${step?`step="${step}"`:''}` : '';
+  el.innerHTML = `
+    <label for="${id}">${label}</label>
+    <input type="${type}" id="${id}" data-path="${path}" value="${value ?? ''}" ${isAuto?'readonly style="background:var(--cream-d);color:var(--mute)"':''} ${extra}>
+  `;
+  return el;
+}
+
+function wideField(label, path, value, placeholder) {
+  const el = document.createElement('div');
+  el.className = 'field field-wide';
+  const id = `fld_${path.replace(/\./g,'_')}`;
+  el.innerHTML = `
+    <label for="${id}">${label}</label>
+    <input type="text" id="${id}" data-path="${path}" value="${(value || '').replace(/"/g,'&quot;')}" placeholder="${placeholder||''}">
+  `;
+  return el;
+}
+
+function classCard(c, idx) {
+  const el = document.createElement('div');
+  el.className = 'class-row-card';
+  const instOptions = ['', ...INSTRUCTORS].map(i => `<option ${c.inst===i?'selected':''}>${i}</option>`).join('');
+  const promoOptions = ['', 'Free Trial', '10% off Class Packs', 'Early bird Camp']
+    .map(p => `<option ${c.promo===p?'selected':''}>${p}</option>`).join('');
+  el.innerHTML = `
+    <div class="class-title">${c.cls}</div>
+    <div class="class-meta">
+      Instructor
+      <select data-path="classes.${idx}.inst">${instOptions}</select>
+    </div>
+    <div class="micro-grid">
+      <div class="micro"><label>Open</label><input type="number" inputmode="numeric" data-path="classes.${idx}.open" value="${c.open}"></div>
+      <div class="micro"><label>Cancel</label><input type="number" inputmode="numeric" data-path="classes.${idx}.cancel" value="${c.cancel}"></div>
+      <div class="micro"><label>Book</label><input type="number" inputmode="numeric" data-path="classes.${idx}.book" value="${c.book}"></div>
+      <div class="micro"><label>Attend</label><input type="number" inputmode="numeric" data-path="classes.${idx}.att" value="${c.att}"></div>
+      <div class="micro"><label>Trials</label><input type="number" inputmode="numeric" data-path="classes.${idx}.trials" value="${c.trials}"></div>
+      <div class="micro"><label>Return</label><input type="number" inputmode="numeric" data-path="classes.${idx}.returners" value="${c.returners}"></div>
+      <div class="micro"><label>CP conv</label><input type="number" inputmode="numeric" data-path="classes.${idx}.cp" value="${c.cp}"></div>
+      <div class="micro"><label>No-show</label><input type="number" readonly data-path="classes.${idx}._noShow" value="${Math.max(0, c.book - c.att)}" style="color:var(--mute)"></div>
+    </div>
+    <div class="extra-fields">
+      <select data-path="classes.${idx}.promo">${promoOptions}</select>
+      <input type="text" data-path="classes.${idx}.notes" value="${(c.notes||'').replace(/"/g,'&quot;')}" placeholder="Notes">
+    </div>
+  `;
+  return el;
+}
+
+function renderCampList() {
+  const list = document.getElementById('campList');
+  if (!list) return;
+  list.innerHTML = '';
+  state.currentDraft.camps.forEach((c, i) => {
+    const el = document.createElement('div');
+    el.style.cssText = 'background:var(--cream); border-radius:8px; padding:10px; margin-bottom:8px; position:relative;';
+    el.innerHTML = `
+      <div style="display:flex; gap:6px; margin-bottom:8px;">
+        <input type="text" data-path="camps.${i}.name" value="${c.name}" placeholder="Camp name (e.g. FEB HT '26)"
+          style="flex:1; padding:7px 9px; border:1px solid var(--line); border-radius:6px; background:var(--white); font-size:13px;">
+        <select data-path="camps.${i}.centre" style="padding:7px 9px; border:1px solid var(--line); border-radius:6px; background:var(--white); font-size:13px;">
+          ${['Hampstead','Kensington','WGC','St Mary'].map(x => `<option ${c.centre===x?'selected':''}>${x}</option>`).join('')}
+        </select>
+        <button onclick="removeCamp(${i})" style="color:var(--red); padding:4px 10px; font-size:18px;" aria-label="Remove">×</button>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:5px;">
+        <div class="micro"><label>Enq</label><input type="number" inputmode="numeric" data-path="camps.${i}.enquiries" value="${c.enquiries}"></div>
+        <div class="micro"><label>Manual</label><input type="number" inputmode="numeric" data-path="camps.${i}.manualBook" value="${c.manualBook}"></div>
+        <div class="micro"><label>Backend</label><input type="number" inputmode="numeric" data-path="camps.${i}.backendBook" value="${c.backendBook}"></div>
+        <div class="micro"><label>Total</label><input type="number" inputmode="numeric" data-path="camps.${i}.totalBook" value="${c.totalBook}"></div>
+        <div class="micro"><label>New</label><input type="number" inputmode="numeric" data-path="camps.${i}.newCust" value="${c.newCust}"></div>
+        <div class="micro"><label>Return</label><input type="number" inputmode="numeric" data-path="camps.${i}.returners" value="${c.returners}"></div>
+        <div class="micro"><label>Cap</label><input type="number" inputmode="numeric" data-path="camps.${i}.capacity" value="${c.capacity}"></div>
+        <div class="micro"><label>Attend</label><input type="number" inputmode="numeric" data-path="camps.${i}.attended" value="${c.attended}"></div>
+      </div>
+    `;
+    list.appendChild(el);
+  });
+  // wire
+  list.querySelectorAll('input, select').forEach(el => el.addEventListener('input', onFieldChange));
+}
+
+function addCamp() {
+  state.currentDraft.camps.push({ name:"", centre:"Hampstead", enquiries:0, manualBook:0, backendBook:0, newCust:0, returners:0, totalBook:0, capacity:95, attended:0 });
+  save(state);
+  renderCampList();
+}
+function removeCamp(i) {
+  state.currentDraft.camps.splice(i, 1);
+  save(state);
+  renderCampList();
+}
+
+function onFieldChange(e) {
+  const el = e.target;
+  const path = el.dataset.path;
+  if (!path || path.startsWith('__')) return;
+  let v = el.value;
+  if (el.type === 'number') v = v === '' ? 0 : (path.includes('invest') ? parseFloat(v) : parseInt(v,10));
+  setPath(state.currentDraft, path, v);
+  // Auto-compute classesSummary from per-class rows
+  if (path.startsWith('classes.')) {
+    recalcClassSummary();
+    // update the no-show display
+    const m = path.match(/classes\.(\d+)\./);
+    if (m) {
+      const idx = parseInt(m[1]);
+      const c = state.currentDraft.classes[idx];
+      const nsEl = document.querySelector(`[data-path="classes.${idx}._noShow"]`);
+      if (nsEl) nsEl.value = Math.max(0, c.book - c.att);
+    }
+  }
+  if (path === 'weekCommencing') {
+    const d = new Date(v);
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    state.currentDraft.weekLabel = `WC ${dd}.${mm}`;
+    document.getElementById('weekChipDate').textContent = formatDate(v);
+  }
+  save(state);
+  updateSummary();
+}
+
+function recalcClassSummary() {
+  const s = state.currentDraft.classesSummary;
+  const c = state.currentDraft.classes;
+  s.open      = c.reduce((a,x)=>a+(x.open||0),0);
+  s.cancelled = c.reduce((a,x)=>a+(x.cancel||0),0);
+  s.bookings  = c.reduce((a,x)=>a+(x.book||0),0);
+  s.trials    = c.reduce((a,x)=>a+(x.trials||0),0);
+  s.returners = c.reduce((a,x)=>a+(x.returners||0),0);
+  s.cpConv    = c.reduce((a,x)=>a+(x.cp||0),0);
+  // Update visible auto fields
+  const upd = (id, v) => {
+    const el = document.querySelector(`[data-path="classesSummary.${id}"]`);
+    if (el) el.value = v;
+  };
+  upd('open', s.open);
+  upd('cancelled', s.cancelled);
+  upd('bookings', s.bookings);
+  upd('trials', s.trials);
+  upd('returners', s.returners);
+  upd('cpConv', s.cpConv);
+}
+
+function setPath(obj, path, v) {
+  const parts = path.split('.');
+  let o = obj;
+  for (let i = 0; i < parts.length - 1; i++) {
+    const key = parts[i];
+    o = o[isNaN(key) ? key : parseInt(key)];
+  }
+  o[parts[parts.length-1]] = v;
+}
+
+function updateSummary() {
+  const d = state.currentDraft;
+  const t = totalBookings(d);
+  document.getElementById('formSummary').innerHTML =
+    `<strong>${d.weekLabel}</strong> · ${t} total bookings · ${d.footfall.venue} venue · ${d.classesSummary.cancelled} cancelled`;
+}
+
+// ---------------------------------------------------------------
+// SUBMIT
+// ---------------------------------------------------------------
+function submitForm() {
+  const d = state.currentDraft;
+  if (!d) return;
+
+  // Check if a week with this weekCommencing already exists → merge
+  const existingIdx = state.weeks.findIndex(w => w.weekCommencing === d.weekCommencing);
+  if (existingIdx >= 0) {
+    // Merge only the sections the user just edited, keeping the rest
+    const existing = state.weeks[existingIdx];
+    const sec = currentSection;
+    if (sec === 'revenue-footfall') {
+      existing.safety = d.safety; existing.revenue = d.revenue; existing.footfall = d.footfall;
+    } else if (sec === 'classes') {
+      existing.classes = d.classes; existing.classesSummary = d.classesSummary;
+    } else if (sec === 'parties-camps') {
+      existing.partiesEvents = d.partiesEvents; existing.camps = d.camps;
+    } else if (sec === 'marketing') {
+      existing.marketing = d.marketing;
+    } else {
+      // full — overwrite everything
+      state.weeks[existingIdx] = { ...d };
+    }
+    existing.reportedBy = d.reportedBy;
+    existing.weekLabel = d.weekLabel;
+    toast(`${d.weekLabel} updated`);
+  } else {
+    state.weeks.push({ ...d });
+    state.weeks.sort((a,b) => a.weekCommencing.localeCompare(b.weekCommencing));
+    toast(`${d.weekLabel} submitted`);
+  }
+
+  state.currentDraft = null;
+  save(state);
+  currentWeekIndex = state.weeks.length - 1;
+  goHome();
+}
+
+function toast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('error', !!isError);
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ---------------------------------------------------------------
+// DASHBOARD
+// ---------------------------------------------------------------
+function renderDashboard() {
+  if (state.weeks.length === 0) {
+    document.getElementById('kpiGrid').innerHTML = '<div class="empty"><p>No data yet — submit a week.</p></div>';
+    return;
+  }
+  currentWeekIndex = Math.min(currentWeekIndex, state.weeks.length - 1);
+  currentWeekIndex = Math.max(currentWeekIndex, 0);
+
+  renderWeekPicker();
+  renderKPIs();
+  renderAttendanceChart();
+  renderMixChart();
+  renderClassRank();
+  renderFlags();
+  renderMarketing();
+}
+
+function renderWeekPicker() {
+  const wp = document.getElementById('weekPicker');
+  wp.innerHTML = '';
+  state.weeks.forEach((w, i) => {
+    const b = document.createElement('button');
+    b.className = 'week-btn' + (i === currentWeekIndex ? ' active' : '');
+    b.textContent = w.weekLabel;
+    b.onclick = () => { currentWeekIndex = i; renderDashboard(); };
+    wp.appendChild(b);
+  });
+}
+
+function renderKPIs() {
+  const w = state.weeks[currentWeekIndex];
+  const prev = currentWeekIndex > 0 ? state.weeks[currentWeekIndex - 1] : null;
+
+  const venue = w.footfall.venue;
+  const classAtt = w.footfall.classAtt;
+  const bookings = totalBookings(w);
+  const attRate = w.classesSummary.bookings ? w.classesSummary.bookings === 0 ? 0 : (w.footfall.classAtt / w.classesSummary.bookings) : 0;
+  const cpConv = w.classesSummary.trials ? w.classesSummary.cpConv / w.classesSummary.trials : 0;
+  const cancelRate = (w.classesSummary.open + w.classesSummary.cancelled) ? w.classesSummary.cancelled / (w.classesSummary.open + w.classesSummary.cancelled) : 0;
+
+  const pVenue = prev ? prev.footfall.venue : null;
+  const pClass = prev ? prev.footfall.classAtt : null;
+  const pBook  = prev ? totalBookings(prev) : null;
+  const pAttRate = prev && prev.classesSummary.bookings ? prev.footfall.classAtt / prev.classesSummary.bookings : null;
+  const pCpConv  = prev && prev.classesSummary.trials ? prev.classesSummary.cpConv / prev.classesSummary.trials : null;
+  const pCanRate = prev && (prev.classesSummary.open + prev.classesSummary.cancelled) ? prev.classesSummary.cancelled / (prev.classesSummary.open + prev.classesSummary.cancelled) : null;
+
+  const kpis = [
+    { label: 'Venue attendance', value: fmt(venue),               p: pVenue,    current: venue,    invert: false },
+    { label: 'Class attendance', value: fmt(classAtt),            p: pClass,    current: classAtt, invert: false },
+    { label: 'Total bookings',   value: fmt(bookings),            p: pBook,     current: bookings, invert: false },
+    { label: 'Attendance rate',  value: pct(attRate),             p: pAttRate,  current: attRate,  invert: false, isRate: true },
+    { label: 'CP conversion',    value: pct(cpConv),              p: pCpConv,   current: cpConv,   invert: false, isRate: true },
+    { label: 'Cancelled %',      value: pct(cancelRate),          p: pCanRate,  current: cancelRate,invert: true, isRate: true }
+  ];
+
+  const grid = document.getElementById('kpiGrid');
+  grid.innerHTML = '';
+  kpis.forEach(k => {
+    let trend = 'flat', deltaStr = '', deltaCls = 'flat';
+    if (k.p !== null && k.p !== undefined) {
+      const diff = k.current - k.p;
+      if (Math.abs(diff) > 0.001) {
+        const up = diff > 0;
+        trend = up ? (k.invert ? 'down' : 'up') : (k.invert ? 'up' : 'down');
+        deltaCls = trend;
+        if (k.isRate) {
+          deltaStr = (up?'+':'') + pct(diff).replace('%','') + '%';
+        } else {
+          deltaStr = (up?'+':'') + fmt(Math.round(diff * 10) / 10);
+        }
+      }
+    }
+    const arrow = trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→';
+    const el = document.createElement('div');
+    el.className = 'kpi';
+    el.dataset.trend = trend;
+    el.innerHTML = `
+      <div class="label">${k.label}</div>
+      <div class="value">${k.value}</div>
+      <div class="delta ${deltaCls}">${deltaStr ? arrow + ' ' + deltaStr + ' WoW' : 'First week'}</div>
+    `;
+    grid.appendChild(el);
+  });
+}
+
+function renderAttendanceChart() {
+  const container = document.getElementById('chartAttendance');
+  const data = state.weeks;
+  if (data.length === 0) return;
+  const labels = data.map(w => w.weekLabel.replace('WC ',''));
+  const venue = data.map(w => w.footfall.venue);
+  const cls = data.map(w => w.footfall.classAtt);
+  const trial = data.map(w => w.footfall.trial);
+
+  container.innerHTML = lineChart(labels, [
+    { values: venue, color: 'var(--navy)',  width: 2.5 },
+    { values: cls,   color: 'var(--teal)',  width: 2.5 },
+    { values: trial, color: 'var(--coral)', width: 2.5 }
+  ]);
+}
+
+function lineChart(labels, series) {
+  const W = 500, H = 180, padL = 36, padR = 12, padT = 14, padB = 28;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const allVals = series.flatMap(s => s.values);
+  const maxV = Math.max(...allVals, 10);
+  const minV = 0;
+  const x = i => padL + (innerW * i / Math.max(1, labels.length - 1));
+  const y = v => padT + innerH - (innerH * (v - minV) / (maxV - minV));
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block;">`;
+  // y grid lines
+  for (let i = 0; i <= 4; i++) {
+    const yy = padT + innerH * i / 4;
+    const v = Math.round(maxV * (1 - i/4));
+    svg += `<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="#E8E2D0" stroke-width="1"/>`;
+    svg += `<text x="${padL-6}" y="${yy+4}" fill="#8A8278" font-size="10" text-anchor="end" font-family="Instrument Sans">${v}</text>`;
+  }
+  // x labels
+  labels.forEach((lab, i) => {
+    svg += `<text x="${x(i)}" y="${H-8}" fill="#8A8278" font-size="11" text-anchor="middle" font-family="Instrument Sans">${lab}</text>`;
+  });
+  // lines
+  series.forEach(s => {
+    const d = s.values.map((v, i) => `${i===0?'M':'L'} ${x(i)} ${y(v)}`).join(' ');
+    svg += `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="${s.width}" stroke-linecap="round" stroke-linejoin="round"/>`;
+    s.values.forEach((v, i) => {
+      svg += `<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="${s.color}" stroke="var(--white)" stroke-width="1.5"/>`;
+    });
+  });
+  svg += `</svg>`;
+  return svg;
+}
+
+function renderMixChart() {
+  const w = state.weeks[currentWeekIndex];
+  document.getElementById('mixLabel').textContent = w.weekLabel;
+  const r = w.revenue;
+  const data = [
+    { label: 'Silver CP',      value: r.silver,    color: '#1F3A5F' },
+    { label: 'Gold CP',        value: r.gold,      color: '#E8B04F' },
+    { label: 'Platinum CP',    value: r.platinum,  color: '#B97E90' },
+    { label: 'Trials',         value: r.trial,     color: '#2E8B8B' },
+    { label: 'One-off',        value: r.oneoff,    color: '#E8705F' },
+    { label: 'Camp',           value: r.camp,      color: '#6B7280' },
+    { label: '4+ course',      value: r.courseFour,color: '#7BA05B' },
+    { label: 'Party',          value: r.party,     color: '#9B6B9E' }
+  ].filter(d => d.value > 0);
+
+  const total = data.reduce((a,d) => a + d.value, 0);
+  const container = document.getElementById('chartMix');
+  if (total === 0) {
+    container.innerHTML = '<div style="text-align:center; padding:40px; color:var(--mute); font-size:13px;">No revenue recorded this week</div>';
+    document.getElementById('mixLegend').innerHTML = '';
+    return;
+  }
+
+  // Horizontal stacked bar
+  const W = 500, H = 50;
+  let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:50px;display:block;">`;
+  let x = 0;
+  data.forEach(d => {
+    const w = (d.value / total) * W;
+    svg += `<rect x="${x}" y="10" width="${w}" height="30" fill="${d.color}" rx="2"/>`;
+    if (w > 30) svg += `<text x="${x + w/2}" y="30" fill="white" font-size="12" text-anchor="middle" font-family="Instrument Sans" font-weight="600" dominant-baseline="middle">${d.value}</text>`;
+    x += w;
+  });
+  svg += `</svg>`;
+
+  // Data table underneath
+  const tableRows = data.sort((a,b) => b.value - a.value).map(d => {
+    const pct_ = ((d.value/total)*100).toFixed(0);
+    return `<div style="display:flex; justify-content:space-between; padding:4px 0; font-size:13px; border-top:1px solid var(--cream-d);">
+      <span style="display:flex; align-items:center; gap:8px;"><span style="width:10px; height:10px; border-radius:2px; background:${d.color};"></span>${d.label}</span>
+      <span style="color:var(--navy); font-weight:600; font-variant-numeric:tabular-nums;">${d.value} <span style="color:var(--mute); font-weight:400;">· ${pct_}%</span></span>
+    </div>`;
+  }).join('');
+  container.innerHTML = svg + '<div style="margin-top:12px;">' + tableRows + '</div>';
+  document.getElementById('mixLegend').innerHTML = `<div class="item" style="color:var(--mute);">Total bookings: <strong style="color:var(--navy); margin-left:4px;">${total}</strong></div>`;
+}
+
+function renderClassRank() {
+  const container = document.getElementById('classRank');
+  // Aggregate over all weeks (Feb)
+  const agg = {};
+  CLASSES.forEach(c => agg[c] = { book:0, att:0, trials:0, cp:0 });
+  state.weeks.forEach(w => {
+    w.classes.forEach(c => {
+      if (!agg[c.cls]) agg[c.cls] = { book:0, att:0, trials:0, cp:0 };
+      agg[c.cls].book += c.book;
+      agg[c.cls].att  += c.att;
+      agg[c.cls].trials += c.trials;
+      agg[c.cls].cp   += c.cp;
+    });
+  });
+
+  const rows = Object.entries(agg)
+    .filter(([c, a]) => a.book > 0)
+    .map(([c, a]) => ({ cls: c, ...a, rate: a.att / a.book }))
+    .sort((a,b) => b.rate - a.rate);
+
+  container.innerHTML = rows.map(r => {
+    const pctv = (r.rate * 100).toFixed(0);
+    const cls = r.rate < 0.5 ? 'low' : r.rate < 0.8 ? 'med' : '';
+    return `<div class="class-rank">
+      <div class="row-1">
+        <span class="cls-name">${r.cls}</span>
+        <span class="cls-pct">${pctv}%</span>
+      </div>
+      <div class="bar"><div class="fill ${cls}" style="width:${pctv}%"></div></div>
+      <div class="meta">
+        <span>${r.book} booked</span>
+        <span>${r.att} attended</span>
+        ${r.trials > 0 ? `<span>${r.trials} trials</span>` : ''}
+        ${r.cp > 0 ? `<span>${r.cp} CP</span>` : ''}
+      </div>
+    </div>`;
+  }).join('') || '<div class="empty"><p>No class data yet</p></div>';
+}
+
+// ---------------------------------------------------------------
+// ANOMALY FLAG ENGINE
+// ---------------------------------------------------------------
+function computeFlags(weekIdx) {
+  const flags = [];
+  const w = state.weeks[weekIdx];
+  if (!w) return flags;
+  const priorWeeks = state.weeks.slice(0, weekIdx);
+
+  // High cancellation
+  const total = w.classesSummary.open + w.classesSummary.cancelled;
+  if (total > 0) {
+    const rate = w.classesSummary.cancelled / total;
+    if (rate >= 0.30)      flags.push({ sev:'red',   subj:`High cancellation week`, det:`${w.classesSummary.cancelled} of ${total} classes cancelled (${Math.round(rate*100)}%)` });
+    else if (rate >= 0.20) flags.push({ sev:'amber', subj:`Elevated cancellations`, det:`${w.classesSummary.cancelled} of ${total} classes cancelled (${Math.round(rate*100)}%)` });
+  }
+
+  // Class streak detection: count consecutive weeks where class did not deliver
+  // (either explicitly cancelled, or no bookings/attendance at all — effectively paused)
+  CLASSES.forEach(cls => {
+    let streak = 0;
+    let lastInst = '';
+    for (let i = weekIdx; i >= 0; i--) {
+      const cw = state.weeks[i];
+      const cc = cw.classes.find(x => x.cls === cls);
+      if (!cc) break;
+      const didNotDeliver = (cc.cancel > 0 && cc.book === 0) || (cc.open === 0 && cc.book === 0 && cc.att === 0);
+      if (didNotDeliver) {
+        streak++;
+        if (cc.inst) lastInst = cc.inst;
+      } else break;
+    }
+    if (streak >= THRESHOLDS.cancelStreak) {
+      flags.push({
+        sev: streak >= 3 ? 'red' : 'amber',
+        subj: `${cls} not running — ${streak} weeks`,
+        det: lastInst ? `Instructor of record: ${lastInst}. Review class viability or reschedule.` : 'Review class viability or reschedule.'
+      });
+    }
+  });
+
+  // Trial no-show (per class)
+  w.classes.forEach(c => {
+    if (c.trials >= 3) {
+      const noShowTrials = Math.max(0, c.trials - (c.book - c.returners));  // rough
+      // Simpler: if trials > 0 and book > 0 and att is low relative to trials
+      const trialShowRate = c.book > 0 ? c.att / c.book : 1;
+      if (c.book > 0 && c.att < c.book * 0.6 && c.trials >= 3) {
+        flags.push({
+          sev: 'amber',
+          subj: `${c.cls} low trial show-up`,
+          det: `${c.trials} trials booked, ${c.book} total → only ${c.att} attended. Consider trial reminders.`
+        });
+      }
+    }
+  });
+
+  // CP conversion floor
+  if (w.classesSummary.trials >= 5) {
+    const rate = w.classesSummary.cpConv / w.classesSummary.trials;
+    if (rate < THRESHOLDS.cpConvFloor) {
+      flags.push({
+        sev: 'red',
+        subj: `CP conversion below floor`,
+        det: `${w.classesSummary.cpConv} of ${w.classesSummary.trials} trials converted (${pct(rate)}). Target ${pct(THRESHOLDS.cpConvFloor)}+.`
+      });
+    }
+  }
+
+  // Attendance drop vs 4-week avg
+  if (priorWeeks.length >= 2) {
+    const avg = priorWeeks.slice(-4).reduce((a,x) => a + x.footfall.venue, 0) / Math.min(priorWeeks.length, 4);
+    const drop = (avg - w.footfall.venue) / avg;
+    if (drop > THRESHOLDS.attendanceDrop) {
+      flags.push({
+        sev: 'red',
+        subj: `Venue attendance drop`,
+        det: `${w.footfall.venue} vs ${Math.round(avg)} avg — ${pct(drop)} down`
+      });
+    }
+  }
+
+  // Zero marketing week
+  const mkTotal = w.marketing.instagram.posts + w.marketing.instagram.stories + w.marketing.rednotes.posts;
+  const mkViews = w.marketing.instagram.views + w.marketing.rednotes.views;
+  if (mkTotal === 0 && mkViews === 0) {
+    flags.push({
+      sev: 'red',
+      subj: `Zero marketing activity`,
+      det: `No posts, stories, or reach recorded on Instagram or Rednotes this week.`
+    });
+  }
+
+  // IG CPA ceiling
+  if (w.marketing.instagram.newFol > 0 && w.marketing.instagram.invest > 0) {
+    const cpa = w.marketing.instagram.invest / w.marketing.instagram.newFol;
+    if (cpa > THRESHOLDS.igCpaCeiling) {
+      flags.push({
+        sev: 'amber',
+        subj: `Instagram CPA above ceiling`,
+        det: `£${cpa.toFixed(2)} per new follower vs £${THRESHOLDS.igCpaCeiling.toFixed(2)} target.`
+      });
+    }
+  }
+
+  // Camp utilisation
+  w.camps.forEach(c => {
+    if (c.capacity > 0 && c.attended > 0) {
+      const util = c.attended / c.capacity;
+      if (util < 0.20) flags.push({ sev:'red',   subj:`${c.centre} ${c.name} under-utilised`, det:`${c.attended}/${c.capacity} (${pct(util)}). Review promotion for next camp.` });
+      else if (util < 0.75) flags.push({ sev:'amber', subj:`${c.centre} ${c.name} utilisation watch`, det:`${c.attended}/${c.capacity} (${pct(util)}). Below 75% healthy target.` });
+    }
+  });
+
+  // Safety flags — always highlight
+  if (w.safety.accidents > 0) flags.unshift({ sev:'red', subj:`${w.safety.accidents} accident(s)/incident(s) reported`, det: w.safety.accidentDetail || 'Detail not recorded.' });
+  if (w.safety.complaints > 0) flags.unshift({ sev:'amber', subj:`${w.safety.complaints} complaint(s)`, det: w.safety.complaintDetail || 'Detail not recorded.' });
+
+  // Info: half-term
+  if (w.weekLabel.includes('16.02')) {
+    flags.push({ sev:'info', subj:`Half-term week`, det:`Some classes paused. Trend comparisons may be skewed.` });
+  }
+
+  // Discoveries / Toddler Art trial spike detection
+  w.classes.forEach(c => {
+    if (c.book >= 5 && c.trials >= c.book * 0.6) {
+      flags.push({
+        sev: 'info',
+        subj: `${c.cls} trial-heavy week`,
+        det: `${c.trials} of ${c.book} bookings are trials. Conversion watch for next week.`
+      });
+    }
+  });
+
+  return flags;
+}
+
+function renderFlags() {
+  const w = state.weeks[currentWeekIndex];
+  document.getElementById('flagWeekLabel').textContent = w.weekLabel;
+  const flags = computeFlags(currentWeekIndex);
+  const list = document.getElementById('flagList');
+  if (flags.length === 0) {
+    list.innerHTML = '<div class="flag"><span class="sev ok">Clear</span><div class="body"><div class="subj">No anomalies detected</div><div class="det">This week is within all thresholds.</div></div></div>';
+    return;
+  }
+  list.innerHTML = flags.map(f => `
+    <div class="flag">
+      <span class="sev ${f.sev}">${f.sev}</span>
+      <div class="body">
+        <div class="subj">${f.subj}</div>
+        <div class="det">${f.det}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderMarketing() {
+  const container = document.getElementById('chartMk');
+  const igViews = state.weeks.reduce((a,w) => a + w.marketing.instagram.views, 0);
+  const rnViews = state.weeks.reduce((a,w) => a + w.marketing.rednotes.views, 0);
+  const igFol   = state.weeks.reduce((a,w) => a + w.marketing.instagram.newFol, 0);
+  const rnFol   = state.weeks.reduce((a,w) => a + w.marketing.rednotes.newFol, 0);
+
+  // grouped bar chart
+  const W = 500, H = 160, padL = 60, padR = 14, padT = 12, padB = 30;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const maxV = Math.max(igViews, rnViews, 10);
+  const bw = 26, gap = 8;
+  const groupW = (bw * 2 + gap);
+  const platforms = [
+    { name: 'Instagram', views: igViews, fol: igFol },
+    { name: 'Rednotes',  views: rnViews, fol: rnFol }
+  ];
+  const groupGap = (innerW - platforms.length * groupW) / (platforms.length + 1);
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block;">`;
+  // y axis
+  for (let i = 0; i <= 4; i++) {
+    const yy = padT + innerH * i / 4;
+    const v = Math.round(maxV * (1 - i/4));
+    svg += `<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="#E8E2D0" stroke-width="1"/>`;
+    svg += `<text x="${padL-6}" y="${yy+4}" fill="#8A8278" font-size="10" text-anchor="end" font-family="Instrument Sans">${v>=1000?(v/1000).toFixed(0)+'k':v}</text>`;
+  }
+  platforms.forEach((p, i) => {
+    const gx = padL + groupGap * (i+1) + groupW * i;
+    // Views bar
+    const vh = (p.views / maxV) * innerH;
+    svg += `<rect x="${gx}" y="${padT + innerH - vh}" width="${bw}" height="${vh}" fill="var(--navy)" rx="2"/>`;
+    svg += `<text x="${gx + bw/2}" y="${padT + innerH - vh - 4}" fill="var(--navy)" font-size="10" text-anchor="middle" font-family="Instrument Sans" font-weight="600">${p.views}</text>`;
+    // Followers bar (scaled up for visibility)
+    const folScale = maxV / Math.max(igFol, rnFol, 1) * 0.4;
+    const fh = (p.fol * folScale / maxV) * innerH;
+    svg += `<rect x="${gx + bw + gap}" y="${padT + innerH - fh}" width="${bw}" height="${fh}" fill="var(--coral)" rx="2"/>`;
+    svg += `<text x="${gx + bw + gap + bw/2}" y="${padT + innerH - fh - 4}" fill="var(--coral)" font-size="10" text-anchor="middle" font-family="Instrument Sans" font-weight="600">${p.fol}</text>`;
+    // Label
+    svg += `<text x="${gx + groupW/2}" y="${H-10}" fill="#4A4A4A" font-size="12" text-anchor="middle" font-family="Instrument Sans" font-weight="600">${p.name}</text>`;
+  });
+  svg += `</svg>`;
+  container.innerHTML = svg;
+}
+
+// ---------------------------------------------------------------
+// ARCHIVE
+// ---------------------------------------------------------------
+function renderArchive() {
+  const list = document.getElementById('archiveList');
+  if (state.weeks.length === 0) {
+    list.innerHTML = '<div class="empty"><p>No submissions yet.</p></div>';
+    return;
+  }
+  list.innerHTML = [...state.weeks].reverse().map(w => {
+    const idx = state.weeks.indexOf(w);
+    const flags = computeFlags(idx);
+    const redAmber = flags.filter(f => f.sev === 'red' || f.sev === 'amber').length;
+    return `
+      <div class="archive-item">
+        <div>
+          <div class="a-title">${w.weekLabel}</div>
+          <div class="a-meta">${w.footfall.venue} venue · ${w.classesSummary.bookings} bookings · ${redAmber > 0 ? `<span class="danger">${redAmber} flag${redAmber>1?'s':''}</span>` : 'No issues'}</div>
+        </div>
+        <button class="a-action" onclick="viewWeek(${idx})">Open</button>
+      </div>
+    `;
+  }).join('');
+}
+
+// ---------------------------------------------------------------
+// EXPORT
+// ---------------------------------------------------------------
+function exportCSV() {
+  // Master weekly CSV
+  const headers = ['Week Commencing','Week Label','Reported By',
+    'Accidents','Near Misses','Complaints',
+    'Silver CP','Gold CP','Platinum CP','Trial','One-off','Camp','4+ Course','Party','Party Extras','Events','Other','Refunds',
+    'Venue','Trial Attendance','Class Attendance','Lounge','Weekend Party','Tours','Walkin Classes','Walkin Trials','Walkin Parties',
+    'Classes Open','Classes Cancelled','Class Bookings','Class Trials','Returners','CP Conversions',
+    'Parties Held','Party Attendance','Party Enquiries','Events Held','Event Bookings','Event Participation',
+    'IG Posts','IG Stories','IG Views','IG Likes','IG Messages','IG New Followers','IG Invest £',
+    'RN Posts','RN Views','RN Likes','RN Messages','RN New Followers','RN Invest £'
+  ];
+  const rows = state.weeks.map(w => [
+    w.weekCommencing, w.weekLabel, w.reportedBy,
+    w.safety.accidents, w.safety.nearMisses, w.safety.complaints,
+    w.revenue.silver, w.revenue.gold, w.revenue.platinum, w.revenue.trial, w.revenue.oneoff, w.revenue.camp, w.revenue.courseFour, w.revenue.party, w.revenue.partyExtras, w.revenue.events, w.revenue.other, w.revenue.refunds,
+    w.footfall.venue, w.footfall.trial, w.footfall.classAtt, w.footfall.lounge, w.footfall.weekendParty, w.footfall.tours, w.footfall.walkInClasses, w.footfall.walkInTrials, w.footfall.walkInParties,
+    w.classesSummary.open, w.classesSummary.cancelled, w.classesSummary.bookings, w.classesSummary.trials, w.classesSummary.returners, w.classesSummary.cpConv,
+    w.partiesEvents.partiesHeld, w.partiesEvents.partyAtt, w.partiesEvents.partyEnq, w.partiesEvents.eventsHeld, w.partiesEvents.eventBookings, w.partiesEvents.eventPart,
+    w.marketing.instagram.posts, w.marketing.instagram.stories, w.marketing.instagram.views, w.marketing.instagram.likes, w.marketing.instagram.messages, w.marketing.instagram.newFol, w.marketing.instagram.invest,
+    w.marketing.rednotes.posts,  w.marketing.rednotes.views, w.marketing.rednotes.likes, w.marketing.rednotes.messages, w.marketing.rednotes.newFol, w.marketing.rednotes.invest
+  ]);
+  const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  download(csv, 'curiouser-weekly.csv', 'text/csv');
+  toast('CSV exported');
+}
+
+function exportJSON() {
+  download(JSON.stringify(state, null, 2), 'curiouser-ops-data.json', 'application/json');
+  toast('JSON exported');
+}
+
+function download(content, filename, mime) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function resetDemo() {
+  if (!confirm('Clear all data and reload Feb 2026 demo?')) return;
+  localStorage.removeItem(STORE_KEY);
+  state = load();
+  currentWeekIndex = state.weeks.length - 1;
+  toast('Reset to demo data');
+  renderHome();
+  renderDashboard();
+}
+
+// ---------------------------------------------------------------
+// UTILITIES
+// ---------------------------------------------------------------
+function totalBookings(w) {
+  const r = w.revenue;
+  return (r.silver||0) + (r.gold||0) + (r.platinum||0) + (r.trial||0) + (r.oneoff||0) + (r.camp||0) + (r.courseFour||0) + (r.party||0) + (r.partyExtras||0) + (r.events||0) + (r.other||0) - (r.refunds||0);
+}
+function fmt(n) {
+  if (typeof n !== 'number' || isNaN(n)) return '0';
+  return n.toLocaleString('en-GB');
+}
+function pct(n) { if (typeof n !== 'number' || isNaN(n)) return '0%'; return (n*100).toFixed(0) + '%'; }
+function formatDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+// ---------------------------------------------------------------
+// INIT
+// ---------------------------------------------------------------
+updateRoleUI();
+renderHome();
+</script>
+
+</body>
+</html>
