@@ -1,0 +1,154 @@
+Curiouser Operations System
+A browser-based weekly reporting and analytics platform for Curiouser early years education centres.
+
+What this is
+A single HTML file that runs in any browser — no installation, no server, no subscription. Staff open it on their phone or laptop, fill in their section of the weekly report, and the dashboard updates instantly with charts, trends, and anomaly flags across all centres.
+
+Built as a working prototype to validate the reporting workflow before commissioning a hosted multi-user version.
+
+What it does
+Reporting
+Staff submit weekly operational data through clean, role-based input forms. Each person sees only the section they own:
+
+General — safety incidents, revenue bookings by product type (Silver/Gold/Platinum CP, trials, one-offs, camps, parties), and club footfall
+Classes — per-class attendance, cancellations, trials, returners, and CP conversions across all 17 class types
+Events & Parties — party and event attendance, enquiries, and camp bookings and utilisation by centre
+Marketing — Instagram and Rednotes weekly performance including views, likes, messages, new followers, investment, and best/worst posts
+Weekly Dashboard
+Real-time view of the selected week with week-on-week deltas:
+
+6 headline KPIs with directional arrows (venue attendance, class attendance, total bookings, attendance rate, CP conversion, cancellation rate)
+Attendance trend line chart across all weeks
+Booking mix breakdown (stacked bar + table)
+Classes ranked by attendance rate with colour-coded bars
+Marketing reach comparison (Instagram vs Rednotes)
+Automatic anomaly flags
+Monthly Analytics
+Aggregated view across all weeks in a selected month, with side-by-side comparison to the previous month:
+
+Monthly KPIs with month-on-month deltas
+Full detail summary card for both months
+Weekly attendance trend chart within the month
+Month-on-month grouped bar chart for headline metrics
+Booking mix for both months
+Class performance table with attendance rates and MoM delta column
+Marketing summary (IG vs Rednotes) with previous month comparison
+All anomaly flags for the month, sorted by severity
+Anomaly Flag Engine
+Automatically surfaces issues each week without anyone having to look for them:
+
+High cancellation rate weeks (≥30% red, ≥20% amber)
+Class cancelled streak detection (flags any class not running for 2+ consecutive weeks)
+CP conversion below floor (flags when trial-to-CP conversion drops below 5%)
+Venue attendance drop vs 4-week rolling average (>20% triggers red)
+Zero marketing activity weeks
+Camp utilisation alerts (<20% red, <75% amber)
+Trial-heavy class detection (flags when >60% of bookings in a class are trials — conversion watch)
+Safety incidents and complaints always surface as red regardless of other thresholds
+Archive
+Full history of every submitted week with flag summary and direct links to the dashboard view for that week.
+
+Centres and classes tracked
+Centres: Hampstead · Kensington · WGC · St Mary
+
+Classes: MM · MM WGC · MM KEN · MM St Mary · Baby Music · Music · Drama 2-4 · Drama 4-6 · Cooking 2-4 · Cooking 4-6 · Discoveries · Science 3-4 · Science 5-6 · Monty Maths · Private Class · Toddler Art · French
+
+Instructors: Erry · Margot · Tegan · Joe · Erin
+
+Tech stack
+Layer	What
+Runtime	Single HTML file, no build step
+Language	Vanilla JavaScript (ES2020)
+Styling	CSS custom properties, no framework
+Charts	Hand-written SVG, no chart library
+Storage	Browser localStorage
+Fonts	Playfair Display + DM Sans via Google Fonts
+Dependencies	None
+The file is entirely self-contained. It works offline after the first load (Google Fonts requires a connection on first visit, then caches).
+
+Limitations of this version
+This is a prototype. It is designed to validate the reporting workflow with real staff before investing in a production system.
+
+Limitation	Implication
+Data lives in the browser	Each device has its own copy — no shared database
+No user accounts	No access control or per-user history
+No automatic sync	Tiger's marketing submission on his phone is not visible to the ops manager on their laptop
+No server	Cannot send alerts, scheduled reports, or email PDFs automatically
+No backup	Clearing browser history or using private browsing can lose data — use Export regularly
+Data export
+Two export options are available from the Dashboard:
+
+Export CSV — flat weekly summary table, ready to paste into Google Sheets or Excel
+Export JSON — complete structured data including per-class detail, camp rows, and marketing notes — use this as the migration file when moving to the hosted version
+Seeded data
+The file ships with four weeks of February 2026 data (WC 02.02 through WC 23.02) taken from the existing operation report. The dashboard and monthly analytics are functional from the first open.
+
+Roadmap — hosted version
+When the prototype has been validated with real staff, the next version should be commissioned as a proper hosted web application. The data model, form fields, and anomaly logic in this file serve as the full functional specification.
+
+Recommended stack for the hosted version:
+
+Frontend: React or Next.js (the existing HTML/JS translates directly)
+Backend: Supabase or Firebase (handles auth, shared database, and real-time sync)
+Auth: Google SSO (team already uses Google Workspace)
+Hosting: Vercel or Netlify (free tier is sufficient at this scale)
+Estimated build cost: £3,000–8,000 with a freelance developer using this file as the spec
+Features to add in the hosted version that are out of scope for the prototype:
+
+Role-based login (each staff member sees their own section on login)
+Shared live database (submissions from any device visible to all)
+Scheduled weekly PDF email to ops manager every Monday morning
+Direct integration with booking system (Stripe / class booking backend) to auto-populate the revenue and footfall sections
+Push notifications when a red flag is triggered
+13-week rolling forecasts once sufficient history has accumulated
+File structure
+curiouser-site.html
+│
+├── <style>          Brand design system, CSS custom properties, all layout
+│
+├── <header>         Sticky nav bar — Home · Report · Dashboard · Monthly · Archive
+│
+├── #page-home       Landing page with KPI strip and role-based entry cards
+├── #page-report     Input forms (General / Classes / Events & Parties / Marketing / Full)
+├── #page-dashboard  Weekly charts, flags, and analysis
+├── #page-monthly    Monthly aggregation and MoM comparison
+├── #page-archive    Full submission history
+│
+└── <script>
+    ├── CONSTANTS    Class list, instructor list, anomaly thresholds
+    ├── SEED DATA    Feb 2026 pre-loaded data
+    ├── STATE        localStorage load/save
+    ├── NAVIGATION   showPage(), mobile drawer
+    ├── HOME         renderHome(), KPI cards
+    ├── FORM         openForm(), buildForm(), class cards, camp builder, submit
+    ├── DASHBOARD    renderDashboard(), all chart renderers
+    ├── MONTHLY      renderMonthly(), aggregateMonth(), MoM comparison
+    ├── FLAGS        computeFlags() — anomaly detection engine
+    ├── ARCHIVE      renderArchive()
+    ├── EXPORT       exportCSV(), exportJSON()
+    └── UTILS        totalBookings(), fmt(), pct(), toast()
+Anomaly thresholds
+All thresholds are defined as constants at the top of the script block and can be adjusted without touching any other code:
+
+js
+const THR = {
+  attendanceDrop: 0.20,   // flag if venue attendance drops >20% vs 4-week avg
+  cpConvFloor:    0.05,   // flag if CP conversion falls below 5%
+  trialNoShow:    0.30,   // flag if >30% of trials don't attend
+  cancelStreak:   2,      // flag a class not running for 2+ consecutive weeks
+  revenueDrop:    0.15,   // flag if total bookings drop >15% vs 4-week avg
+  igCpa:          1.00    // flag if Instagram cost-per-follower exceeds £1
+};
+Contributing / handoff notes
+If you are a developer picking this up to build the hosted version:
+
+The seed data object (SEED) in the script is the canonical data schema — every field name used in the forms, dashboard, and export maps directly to this structure
+aggregateMonth() is the aggregation logic — port this to a database query or server-side function
+computeFlags() is the anomaly engine — this should run server-side on each submission and store results, rather than computing on the fly in the browser
+The CSS custom properties at the top of <style> are the complete brand token set — use these as the design system for the hosted frontend
+Export a JSON file from the prototype before migrating — this becomes the seed data import for the production database
+
+
+
+
+
